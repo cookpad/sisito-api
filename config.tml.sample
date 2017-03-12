@@ -5,3 +5,6 @@ database = "sisito_development"
 username = "root"
 password = ""
 
+[[user]]
+userid = "foo"
+password = "bar"

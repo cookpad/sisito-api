@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	config, err := sisito.LoadConfig()
+	config, err := sisito.LoadConfig("config.tml")
 
 	if err != nil {
 		log.Fatalf("Load config.tml failed: %s", err)
@@ -20,6 +20,6 @@ func main() {
 
 	defer driver.Close()
 
-	server := sisito.NewServer(driver)
+	server := sisito.NewServer(config, driver)
 	server.Run()
 }

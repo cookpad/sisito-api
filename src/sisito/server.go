@@ -6,24 +6,40 @@ import (
 
 type Server struct {
 	Engine *gin.Engine
-	Driver *driver
+	Router gin.IRouter
+	Driver *Driver
 }
 
-func NewServer(driver *Driver) (server *Server) {
+func NewServer(config *Config, driver *Driver) (server *Server) {
+	engine := gin.Default()
+
 	server = &Server{
-		Engine: gin.Default(),
+		Engine: engine,
+		Router: engine,
 		Driver: driver,
 	}
+
+	if len(config.User) > 0 {
+		accounts := gin.Accounts{}
+
+		for _, u := range config.User {
+			accounts[u.Userid] = u.Password
+		}
+
+		server.Router = engine.Group("", gin.BasicAuth(accounts))
+	}
+
+	return
 }
 
 func (server *Server) Run() {
-	engine := server.Engine
+	router := server.Router
 
-	engine.GET("/ping", func(c *gin.Context) {
+	router.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	engine.Run()
+	server.Engine.Run()
 }

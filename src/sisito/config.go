@@ -4,12 +4,9 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-const (
-	ConfigFile = "config.tml"
-)
-
 type Config struct {
 	Database DatabaseConfig
+	User     []User
 }
 
 type DatabaseConfig struct {
@@ -20,8 +17,32 @@ type DatabaseConfig struct {
 	Password string
 }
 
-func LoadConfig() (config *Config, err error) {
+type User struct {
+	Userid   string
+	Password string
+}
+
+func LoadConfig(path string) (config *Config, err error) {
 	config = &Config{}
-	_, err = toml.DecodeFile(ConfigFile, config)
+	_, err = toml.DecodeFile(path, config)
+
+	if err != nil {
+		return
+	}
+
+	database := config.Database
+
+	if database.Host == "" {
+		database.Host = "localhost"
+	}
+
+	if database.Port == 0 {
+		database.Port = 3306
+	}
+
+	if database.User == "" {
+		database.User = "root"
+	}
+
 	return
 }
