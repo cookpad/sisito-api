@@ -6,7 +6,9 @@ import (
 )
 
 func main() {
-	config, err := sisito.LoadConfig("config.tml")
+	flags := sisito.ParseFlag()
+
+	config, err := sisito.LoadConfig(flags)
 
 	if err != nil {
 		log.Fatalf("Load config.tml failed: %s", err)

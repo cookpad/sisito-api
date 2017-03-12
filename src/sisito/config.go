@@ -22,9 +22,9 @@ type User struct {
 	Password string
 }
 
-func LoadConfig(path string) (config *Config, err error) {
+func LoadConfig(flags *Flags) (config *Config, err error) {
 	config = &Config{}
-	_, err = toml.DecodeFile(path, config)
+	_, err = toml.DecodeFile(flags.Config, config)
 
 	if err != nil {
 		return
