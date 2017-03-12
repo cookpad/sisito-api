@@ -16,4 +16,8 @@ go-get:
 	go get gopkg.in/gorp.v1
 
 sisito-api: $(SRC)
+ifeq ($(GOOS),linux)
 	GOPATH=$(RUNTIME_GOPATH) go build -a -tags netgo -installsuffix netgo -o sisito-api
+else
+	GOPATH=$(RUNTIME_GOPATH) go build -o sisito-api
+endif

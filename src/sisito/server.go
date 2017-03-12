@@ -32,14 +32,55 @@ func NewServer(config *Config, driver *Driver) (server *Server) {
 	return
 }
 
-func (server *Server) Run() {
-	router := server.Router
-
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+func (server *Server) ping(c *gin.Context) {
+	c.JSON(200, gin.H{
+		"message": "pong",
 	})
+}
 
-	server.Engine.Run()
+func (server *Server) bounced(c *gin.Context) {
+	recipient := c.Query("recipient")
+	digest := c.Query("digest")
+	senderdomain := c.Query("senderdomain")
+
+	if recipient == "" && digest == "" {
+		c.JSON(400, gin.H{
+			"message": `"recipient" or "digest" is not present`,
+		})
+	} else if recipient == "" && digest == "" {
+		c.JSON(400, gin.H{
+			"message": `"recipient" or "digest" is not present`,
+		})
+	} else {
+		var name string
+		var value string
+
+		if recipient != "" && digest == "" {
+			name = "recipient"
+			value = recipient
+		} else if recipient == "" || digest != "" {
+			name = "digest"
+			value = digest
+		}
+
+		bounced, err := server.Driver.IsBounced(name, value, senderdomain)
+
+		if err != nil {
+			panic(err)
+		}
+
+		c.JSON(200, gin.H{
+			"bounced": bounced,
+		})
+	}
+}
+
+func (server *Server) Run() {
+	engine := server.Engine
+	//router := server.Router
+
+	engine.GET("/ping", server.ping)
+	engine.GET("/bounced", server.bounced)
+
+	engine.Run()
 }

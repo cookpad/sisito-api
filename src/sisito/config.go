@@ -13,7 +13,7 @@ type DatabaseConfig struct {
 	Host     string
 	Port     int64
 	Database string
-	User     string
+	Username string
 	Password string
 }
 
@@ -40,8 +40,8 @@ func LoadConfig(path string) (config *Config, err error) {
 		database.Port = 3306
 	}
 
-	if database.User == "" {
-		database.User = "root"
+	if database.Username == "" {
+		database.Username = "root"
 	}
 
 	return
