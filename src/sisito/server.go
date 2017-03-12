@@ -49,7 +49,7 @@ func (server *Server) bounced(c *gin.Context) {
 		})
 	} else if recipient == "" && digest == "" {
 		c.JSON(400, gin.H{
-			"message": `"recipient" or "digest" is not present`,
+			"message": ` Cannot pass both "recipient" and "digest"`,
 		})
 	} else {
 		var name string
