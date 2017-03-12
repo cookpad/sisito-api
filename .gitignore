@@ -1,2 +1,4 @@
 /sisito-api
 /config.tml
+/pkg/sisito-api*
+.DS_Store

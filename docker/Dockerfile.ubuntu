@@ -1,0 +1,14 @@
+FROM ubuntu:trusty
+
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN apt-get install -y debhelper wget git
+
+ENV GOROOT=/usr/local/go
+ENV PATH $GOROOT/bin:$PATH
+ENV GOPATH=/root/.go
+RUN mkdir $GOPATH
+
+ENV GO_VERSION 1.8
+RUN wget -O- -q https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz | tar zxf - && \
+    mv go /usr/local/
