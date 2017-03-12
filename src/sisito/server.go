@@ -38,7 +38,7 @@ func (server *Server) ping(c *gin.Context) {
 	})
 }
 
-func (server *Server) bounced(c *gin.Context) {
+func (server *Server) recent(c *gin.Context) {
 	recipient := c.Query("recipient")
 	digest := c.Query("digest")
 	senderdomain := c.Query("senderdomain")
@@ -49,7 +49,7 @@ func (server *Server) bounced(c *gin.Context) {
 		})
 	} else if recipient == "" && digest == "" {
 		c.JSON(400, gin.H{
-			"message": ` Cannot pass both "recipient" and "digest"`,
+			"message": `Cannot pass both "recipient" and "digest"`,
 		})
 	} else {
 		var name string
@@ -63,15 +63,41 @@ func (server *Server) bounced(c *gin.Context) {
 			value = digest
 		}
 
-		bounced, err := server.Driver.IsBounced(name, value, senderdomain)
+		bounced, err := server.Driver.RecentlyBounced(name, value, senderdomain)
 
 		if err != nil {
 			panic(err)
 		}
 
-		c.JSON(200, gin.H{
-			"bounced": bounced,
-		})
+		if len(bounced) > 0 {
+			row := bounced[0]
+
+			c.JSON(200, gin.H{
+				"timestamp":      row.Timestamp,
+				"lhost":          row.Lhost,
+				"rhost":          row.Rhost,
+				"alias":          row.Alias,
+				"reason":         row.Reason,
+				"subject":        row.Subject,
+				"messageid":      row.Messageid,
+				"smtpagent":      row.Smtpagent,
+				"softbounce":     row.Softbounce,
+				"smtpcommand":    row.Smtpcommand,
+				"destination":    row.Destination,
+				"senderdomain":   row.Senderdomain,
+				"diagnosticcode": row.Diagnosticcode,
+				"deliverystatus": row.Deliverystatus,
+				"timezoneoffset": row.Timezoneoffset,
+				"addresser":      row.Addresser,
+				"recipient":      row.Recipient,
+				"digest":         row.Digest,
+				"created_at":     row.CreatedAt,
+				"updated_at":     row.UpdatedAt,
+				"whitelisted":    row.Whitelisted,
+			})
+		} else {
+			c.JSON(200, gin.H{})
+		}
 	}
 }
 
@@ -80,7 +106,7 @@ func (server *Server) Run() {
 	router := server.Router
 
 	engine.GET("/ping", server.ping)
-	router.GET("/bounced", server.bounced)
+	router.GET("/recent", server.recent)
 
 	engine.Run()
 }

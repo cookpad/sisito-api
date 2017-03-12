@@ -1,6 +1,7 @@
 package main
 
 import (
+	"gopkg.in/gin-gonic/gin.v1"
 	"log"
 	"sisito"
 )
@@ -14,7 +15,7 @@ func main() {
 		log.Fatalf("Load config.tml failed: %s", err)
 	}
 
-	driver, err := sisito.NewDriver(config)
+	driver, err := sisito.NewDriver(config, gin.Mode() == "debug")
 
 	if err != nil {
 		log.Fatalf("Create database driver failed: %s", err)

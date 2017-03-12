@@ -6,13 +6,16 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/gorp.v1"
+	"log"
+	"os"
+	"time"
 )
 
 type Driver struct {
 	Dbmap *gorp.DbMap
 }
 
-func NewDriver(config *Config) (driver *Driver, err error) {
+func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
 	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
 		config.Database.Username,
 		config.Database.Password,
@@ -28,6 +31,11 @@ func NewDriver(config *Config) (driver *Driver, err error) {
 	}
 
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{}}
+
+	if debug {
+		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "", log.Lmicroseconds))
+	}
+
 	driver = &Driver{Dbmap: dbmap}
 
 	return
@@ -37,9 +45,37 @@ func (driver *Driver) Close() {
 	driver.Close()
 }
 
-func (driver *Driver) IsBounced(name string, value string, senderdomain string) (bounced bool, err error) {
+type BounceMail struct {
+	Id             int32
+	Timestamp      time.Time
+	Lhost          string
+	Rhost          string
+	Alias          string
+	Listid         string
+	Reason         string
+	Action         string
+	Subject        string
+	Messageid      string
+	Smtpagent      string
+	Softbounce     uint8
+	Smtpcommand    string
+	Destination    string
+	Senderdomain   string
+	Feedbacktype   string
+	Diagnosticcode string
+	Deliverystatus string
+	Timezoneoffset string
+	Addresser      string
+	Recipient      string
+	Digest         string
+	CreatedAt      time.Time `db:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
+	Whitelisted    uint8
+}
+
+func (driver *Driver) RecentlyBounced(name string, value string, senderdomain string) (bounced []BounceMail, err error) {
 	sqlBase := fmt.Sprintf(`
-    SELECT COUNT(1)
+    SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.%s = ?`, name)
@@ -56,21 +92,13 @@ func (driver *Driver) IsBounced(name string, value string, senderdomain string) 
 	}
 
 	sqlBuf.WriteString(`
-       AND wm.id IS NULL
+  ORDER BY bm.id DESC
      LIMIT 1`)
 
 	sql := sqlBuf.String()
 
-	Debugf("IsBounced SQL: %s %s\n", sql, params)
-
-	var count int64
-	count, err = driver.Dbmap.SelectInt(sql, params...)
-
-	if err != nil {
-		return
-	}
-
-	bounced = count > 0
+	bounced = []BounceMail{}
+	_, err = driver.Dbmap.Select(&bounced, sql, params...)
 
 	return
 }
