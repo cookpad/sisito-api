@@ -77,10 +77,10 @@ func (server *Server) bounced(c *gin.Context) {
 
 func (server *Server) Run() {
 	engine := server.Engine
-	//router := server.Router
+	router := server.Router
 
 	engine.GET("/ping", server.ping)
-	engine.GET("/bounced", server.bounced)
+	router.GET("/bounced", server.bounced)
 
 	engine.Run()
 }
