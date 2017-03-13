@@ -96,7 +96,7 @@ func (server *Server) recent(c *gin.Context) {
 				"whitelisted":    row.Whitelisted,
 			})
 		} else {
-			c.JSON(200, gin.H{})
+			c.JSON(204, gin.H{})
 		}
 	}
 }
