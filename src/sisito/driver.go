@@ -123,7 +123,6 @@ func (driver *Driver) IsBounced(name string, value string, senderdomain string) 
 
 	sqlBuf.WriteString(`
        AND wm.id IS NULL
-  ORDER BY bm.id DESC
      LIMIT 1`)
 
 	sql := sqlBuf.String()
