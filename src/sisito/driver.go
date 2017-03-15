@@ -73,10 +73,6 @@ type BounceMail struct {
 	Whitelisted    uint8
 }
 
-type Recipient struct {
-	Recipient string
-}
-
 func (driver *Driver) recentlyBounced(name string, value string, senderdomain string) (bounced []BounceMail, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
