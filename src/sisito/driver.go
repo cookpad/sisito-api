@@ -73,6 +73,10 @@ type BounceMail struct {
 	Whitelisted    uint8
 }
 
+type Recipient struct {
+	Recipient string
+}
+
 func (driver *Driver) recentlyBounced(name string, value string, senderdomain string) (bounced []BounceMail, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -138,6 +142,38 @@ func (driver *Driver) isBounced(name string, value string, senderdomain string) 
 		bounced = true
 	} else {
 		bounced = false
+	}
+
+	return
+}
+
+func (driver *Driver) blacklistRecipients(senderdomain string) (recipients []string, err error) {
+	sqlBase := fmt.Sprintf(`
+    SELECT bm.recipient
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE wm.id IS NULL`)
+
+	sqlBuf := bytes.NewBufferString(sqlBase)
+	params := make([]interface{}, 0)
+
+	if senderdomain != "" {
+		sqlBuf.WriteString(`
+       AND bm.senderdomain = ?`)
+
+		params = append(params, senderdomain)
+	}
+
+	sqlBuf.WriteString(`
+  GROUP BY recipient`)
+
+	sql := sqlBuf.String()
+
+	recipients = []string{}
+	_, err = driver.Dbmap.Select(&recipients, sql, params...)
+
+	if err != nil {
+		return
 	}
 
 	return

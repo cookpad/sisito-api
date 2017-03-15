@@ -150,6 +150,20 @@ func (server *Server) bounced(c *gin.Context) {
 	}
 }
 
+func (server *Server) blacklist(c *gin.Context) {
+	senderdomain := c.Query("senderdomain")
+
+	recipients, err := server.Driver.blacklistRecipients(senderdomain)
+
+	if err != nil {
+		panic(err)
+	}
+
+	c.JSON(200, gin.H{
+		"recipients": recipients,
+	})
+}
+
 func (server *Server) Run() {
 	engine := server.Engine
 	router := server.Router
@@ -157,6 +171,7 @@ func (server *Server) Run() {
 	engine.GET("/ping", server.ping)
 	router.GET("/recent", server.recent)
 	router.GET("/bounced", server.bounced)
+	router.GET("/blacklist", server.blacklist)
 
 	engine.Run()
 }
