@@ -72,6 +72,18 @@ func (server *Server) recent(c *gin.Context) {
 		if len(bounced) > 0 {
 			row := bounced[0]
 
+			softbounce := false
+
+			if row.Softbounce == 1 {
+				softbounce = true
+			}
+
+			whitelisted := false
+
+			if row.Whitelisted == 1 {
+				whitelisted = true
+			}
+
 			c.JSON(200, gin.H{
 				"timestamp":      row.Timestamp,
 				"lhost":          row.Lhost,
@@ -81,7 +93,7 @@ func (server *Server) recent(c *gin.Context) {
 				"subject":        row.Subject,
 				"messageid":      row.Messageid,
 				"smtpagent":      row.Smtpagent,
-				"softbounce":     row.Softbounce,
+				"softbounce":     softbounce,
 				"smtpcommand":    row.Smtpcommand,
 				"destination":    row.Destination,
 				"senderdomain":   row.Senderdomain,
@@ -93,7 +105,7 @@ func (server *Server) recent(c *gin.Context) {
 				"digest":         row.Digest,
 				"created_at":     row.CreatedAt,
 				"updated_at":     row.UpdatedAt,
-				"whitelisted":    row.Whitelisted,
+				"whitelisted":    whitelisted,
 			})
 		} else {
 			c.JSON(204, gin.H{})
