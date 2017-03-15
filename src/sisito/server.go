@@ -1,6 +1,7 @@
 package sisito
 
 import (
+	"github.com/gin-contrib/gzip"
 	"gopkg.in/gin-gonic/gin.v1"
 	"strconv"
 )
@@ -13,6 +14,7 @@ type Server struct {
 
 func NewServer(config *Config, driver *Driver) (server *Server) {
 	engine := gin.Default()
+	engine.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	server = &Server{
 		Engine: engine,

@@ -18,6 +18,7 @@ go-get:
 	go get github.com/BurntSushi/toml
 	go get github.com/go-sql-driver/mysql
 	go get gopkg.in/gorp.v1
+	go get github.com/gin-contrib/gzip
 
 $(PROGRAM): $(SRC)
 ifeq ($(GOOS),linux)
