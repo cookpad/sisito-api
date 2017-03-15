@@ -2,3 +2,4 @@
 /config.tml
 /pkg/sisito-api*
 .DS_Store
+*.gz
