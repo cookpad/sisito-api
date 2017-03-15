@@ -156,6 +156,7 @@ func (server *Server) blacklist(c *gin.Context) {
 	var err error
 
 	senderdomain := c.Query("senderdomain")
+	reasons := c.QueryArray("reason")
 	limitStr := c.Query("limit")
 	offsetStr := c.Query("offset")
 
@@ -184,7 +185,7 @@ func (server *Server) blacklist(c *gin.Context) {
 	}
 
 	var recipients []string
-	recipients, err = server.Driver.blacklistRecipients(senderdomain, limit, offset)
+	recipients, err = server.Driver.blacklistRecipients(senderdomain, reasons, limit, offset)
 
 	if err != nil {
 		panic(err)

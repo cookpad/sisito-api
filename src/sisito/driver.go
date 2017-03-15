@@ -8,6 +8,7 @@ import (
 	"gopkg.in/gorp.v1"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -143,7 +144,7 @@ func (driver *Driver) isBounced(name string, value string, senderdomain string) 
 	return
 }
 
-func (driver *Driver) blacklistRecipients(senderdomain string, limit uint64, offset uint64) (recipients []string, err error) {
+func (driver *Driver) blacklistRecipients(senderdomain string, reasons []string, limit uint64, offset uint64) (recipients []string, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.recipient
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -158,6 +159,21 @@ func (driver *Driver) blacklistRecipients(senderdomain string, limit uint64, off
        AND bm.senderdomain = ?`)
 
 		params = append(params, senderdomain)
+	}
+
+	if len(reasons) > 0 {
+		sqlBuf.WriteString(`
+       AND bm.reason IN (`)
+
+		phs := make([]string, len(reasons))
+
+		for i, v := range reasons {
+			params = append(params, v)
+			phs[i] = "?"
+		}
+
+		sqlBuf.WriteString(strings.Join(phs, ","))
+		sqlBuf.WriteString(")")
 	}
 
 	sqlBuf.WriteString(`
