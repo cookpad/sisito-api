@@ -113,12 +113,50 @@ func (server *Server) recent(c *gin.Context) {
 	}
 }
 
+func (server *Server) bounced(c *gin.Context) {
+	recipient := c.Query("recipient")
+	digest := c.Query("digest")
+	senderdomain := c.Query("senderdomain")
+
+	if recipient == "" && digest == "" {
+		c.JSON(400, gin.H{
+			"message": `"recipient" or "digest" is not present`,
+		})
+	} else if recipient == "" && digest == "" {
+		c.JSON(400, gin.H{
+			"message": `Cannot pass both "recipient" and "digest"`,
+		})
+	} else {
+		var name string
+		var value string
+
+		if recipient != "" && digest == "" {
+			name = "recipient"
+			value = recipient
+		} else if recipient == "" || digest != "" {
+			name = "digest"
+			value = digest
+		}
+
+		bounced, err := server.Driver.IsBounced(name, value, senderdomain)
+
+		if err != nil {
+			panic(err)
+		}
+
+		c.JSON(200, gin.H{
+			"bounced": bounced,
+		})
+	}
+}
+
 func (server *Server) Run() {
 	engine := server.Engine
 	router := server.Router
 
 	engine.GET("/ping", server.ping)
 	router.GET("/recent", server.recent)
+	router.GET("/bounced", server.bounced)
 
 	engine.Run()
 }
