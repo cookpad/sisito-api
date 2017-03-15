@@ -2,6 +2,7 @@ package sisito
 
 import (
 	"gopkg.in/gin-gonic/gin.v1"
+	"strconv"
 )
 
 type Server struct {
@@ -151,9 +152,26 @@ func (server *Server) bounced(c *gin.Context) {
 }
 
 func (server *Server) blacklist(c *gin.Context) {
-	senderdomain := c.Query("senderdomain")
+	var limit uint64 = 0
+	var err error
 
-	recipients, err := server.Driver.blacklistRecipients(senderdomain)
+	senderdomain := c.Query("senderdomain")
+	limitStr := c.Query("limit")
+
+	if limitStr != "" {
+		limit, err = strconv.ParseUint(limitStr, 10, 64)
+
+		if err != nil {
+			c.JSON(400, gin.H{
+				"message": err.Error(),
+			})
+
+			return
+		}
+	}
+
+	var recipients []string
+	recipients, err = server.Driver.blacklistRecipients(senderdomain, limit)
 
 	if err != nil {
 		panic(err)

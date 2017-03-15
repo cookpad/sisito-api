@@ -143,7 +143,7 @@ func (driver *Driver) isBounced(name string, value string, senderdomain string) 
 	return
 }
 
-func (driver *Driver) blacklistRecipients(senderdomain string) (recipients []string, err error) {
+func (driver *Driver) blacklistRecipients(senderdomain string, limit uint64) (recipients []string, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.recipient
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -162,6 +162,13 @@ func (driver *Driver) blacklistRecipients(senderdomain string) (recipients []str
 
 	sqlBuf.WriteString(`
   GROUP BY recipient`)
+
+	if limit > 0 {
+		sqlBuf.WriteString(`
+     LIMIT ?`)
+
+		params = append(params, limit)
+	}
 
 	sql := sqlBuf.String()
 
