@@ -34,7 +34,7 @@ func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{}}
 
 	if debug {
-		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "", log.Lmicroseconds))
+		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "", log.Ldate|log.Ltime))
 	}
 
 	driver = &Driver{Dbmap: dbmap}
