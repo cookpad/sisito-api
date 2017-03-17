@@ -154,13 +154,28 @@ func (server *Server) bounced(c *gin.Context) {
 }
 
 func (server *Server) blacklist(c *gin.Context) {
+	var softbounce *bool
 	var limit, offset uint64
 	var err error
 
 	senderdomain := c.Query("senderdomain")
 	reasons := c.QueryArray("reason")
+	softbounceStr := c.Query("softbounce")
 	limitStr := c.Query("limit")
 	offsetStr := c.Query("offset")
+
+	if softbounceStr != "" {
+		softbounce = new(bool)
+		*softbounce, err = strconv.ParseBool(softbounceStr)
+
+		if err != nil {
+			c.JSON(400, gin.H{
+				"message": err.Error(),
+			})
+
+			return
+		}
+	}
 
 	if limitStr != "" {
 		limit, err = strconv.ParseUint(limitStr, 10, 64)
@@ -187,7 +202,7 @@ func (server *Server) blacklist(c *gin.Context) {
 	}
 
 	var recipients []string
-	recipients, err = server.Driver.blacklistRecipients(senderdomain, reasons, limit, offset)
+	recipients, err = server.Driver.blacklistRecipients(senderdomain, reasons, softbounce, limit, offset)
 
 	if err != nil {
 		panic(err)

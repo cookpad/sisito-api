@@ -144,7 +144,7 @@ func (driver *Driver) isBounced(name string, value string, senderdomain string) 
 	return
 }
 
-func (driver *Driver) blacklistRecipients(senderdomain string, reasons []string, limit uint64, offset uint64) (recipients []string, err error) {
+func (driver *Driver) blacklistRecipients(senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64) (recipients []string, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.recipient
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -174,6 +174,13 @@ func (driver *Driver) blacklistRecipients(senderdomain string, reasons []string,
 
 		sqlBuf.WriteString(strings.Join(phs, ","))
 		sqlBuf.WriteString(")")
+	}
+
+	if softbounce != nil {
+		sqlBuf.WriteString(`
+       AND bm.softbounce = ?`)
+
+		params = append(params, *softbounce)
 	}
 
 	sqlBuf.WriteString(`
