@@ -66,7 +66,7 @@ func (server *Server) recent(c *gin.Context) {
 			value = digest
 		}
 
-		bounced, err := server.Driver.recentlyBounced(name, value, senderdomain)
+		bounced, err := server.Driver.RecentlyBounced(name, value, senderdomain)
 
 		if err != nil {
 			panic(err)

@@ -30,6 +30,7 @@ password = "baz"
 	tempFile(tml, func(f *os.File) {
 		flag := &Flags{Config: f.Name()}
 		config, _ := LoadConfig(flag)
+
 		assert.Equal(*config, Config{
 			Database: DatabaseConfig{
 				Host:     "localhost",

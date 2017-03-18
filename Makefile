@@ -21,6 +21,7 @@ go-get:
 	go get gopkg.in/gorp.v1
 	go get github.com/gin-contrib/gzip
 	go get github.com/stretchr/testify
+	go get github.com/bouk/monkey
 
 $(PROGRAM): $(SRC)
 ifeq ($(GOOS),linux)
@@ -29,7 +30,7 @@ else
 	GOPATH=$(RUNTIME_GOPATH) go build -o $(PROGRAM)
 endif
 
-.PHONY: test
+.PHONY: $(PROGRAM) test
 test:
 	GOPATH=$(RUNTIME_GOPATH) go test -v $(TEST_SRC)
 

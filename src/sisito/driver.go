@@ -13,7 +13,7 @@ import (
 )
 
 type Driver struct {
-	Dbmap *gorp.DbMap
+	DbMap *gorp.DbMap
 }
 
 func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
@@ -37,7 +37,7 @@ func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
 		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "", log.Ldate|log.Ltime))
 	}
 
-	driver = &Driver{Dbmap: dbmap}
+	driver = &Driver{DbMap: dbmap}
 
 	return
 }
@@ -74,7 +74,7 @@ type BounceMail struct {
 	Whitelisted    uint8
 }
 
-func (driver *Driver) recentlyBounced(name string, value string, senderdomain string) (bounced []BounceMail, err error) {
+func (driver *Driver) RecentlyBounced(name string, value string, senderdomain string) (bounced []BounceMail, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -82,8 +82,7 @@ func (driver *Driver) recentlyBounced(name string, value string, senderdomain st
      WHERE bm.%s = ?`, name)
 
 	sqlBuf := bytes.NewBufferString(sqlBase)
-	params := make([]interface{}, 1)
-	params[0] = value
+	params := []interface{}{value}
 
 	if senderdomain != "" {
 		sqlBuf.WriteString(`
@@ -99,7 +98,7 @@ func (driver *Driver) recentlyBounced(name string, value string, senderdomain st
 	sql := sqlBuf.String()
 
 	bounced = []BounceMail{}
-	_, err = driver.Dbmap.Select(&bounced, sql, params...)
+	_, err = driver.DbMap.Select(&bounced, sql, params...)
 
 	return
 }
@@ -112,8 +111,7 @@ func (driver *Driver) isBounced(name string, value string, senderdomain string) 
      WHERE bm.%s = ?`, name)
 
 	sqlBuf := bytes.NewBufferString(sqlBase)
-	params := make([]interface{}, 1)
-	params[0] = value
+	params := []interface{}{value}
 
 	if senderdomain != "" {
 		sqlBuf.WriteString(`
@@ -129,7 +127,7 @@ func (driver *Driver) isBounced(name string, value string, senderdomain string) 
 	sql := sqlBuf.String()
 
 	var count int64
-	count, err = driver.Dbmap.SelectInt(sql, params...)
+	count, err = driver.DbMap.SelectInt(sql, params...)
 
 	if err != nil {
 		return
@@ -152,7 +150,7 @@ func (driver *Driver) blacklistRecipients(senderdomain string, reasons []string,
      WHERE wm.id IS NULL`)
 
 	sqlBuf := bytes.NewBufferString(sqlBase)
-	params := make([]interface{}, 0)
+	params := []interface{}{}
 
 	if senderdomain != "" {
 		sqlBuf.WriteString(`
@@ -204,7 +202,7 @@ func (driver *Driver) blacklistRecipients(senderdomain string, reasons []string,
 	sql := sqlBuf.String()
 
 	recipients = []string{}
-	_, err = driver.Dbmap.Select(&recipients, sql, params...)
+	_, err = driver.DbMap.Select(&recipients, sql, params...)
 
 	if err != nil {
 		return
