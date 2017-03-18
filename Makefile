@@ -4,7 +4,8 @@ VERSION        := v0.1.6
 GOOS           := $(shell go env GOOS)
 GOARCH         := $(shell go env GOARCH)
 RUNTIME_GOPATH := $(GOPATH):$(shell pwd)
-SRC            := $(wildcard *.go) $(wildcard src/*/*.go)
+TEST_SRC       := $(wildcard src/*/*_test.go) $(wildcard src/*/test_*.go)
+SRC            := $(filter-out $(TEST_SRC),$(wildcard src/*/*.go))
 
 UBUNTU_IMAGE          := docker-go-pkg-build-ubuntu
 UBUNTU_CONTAINER_NAME := docker-go-pkg-build-ubuntu-$(shell date +%s)
@@ -19,6 +20,7 @@ go-get:
 	go get github.com/go-sql-driver/mysql
 	go get gopkg.in/gorp.v1
 	go get github.com/gin-contrib/gzip
+	go get github.com/stretchr/testify
 
 $(PROGRAM): $(SRC)
 ifeq ($(GOOS),linux)
@@ -27,8 +29,12 @@ else
 	GOPATH=$(RUNTIME_GOPATH) go build -o $(PROGRAM)
 endif
 
+.PHONY: test
+test:
+	GOPATH=$(RUNTIME_GOPATH) go test -v $(TEST_SRC)
+
 .PHONY: clean
-clean:
+clean: $(TEST_SRC)
 	rm -f $(PROGRAM) pkg/*
 
 .PHONY: package

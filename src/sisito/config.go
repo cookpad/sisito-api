@@ -6,7 +6,7 @@ import (
 
 type Config struct {
 	Database DatabaseConfig
-	User     []User
+	User     []UserConfig
 }
 
 type DatabaseConfig struct {
@@ -17,7 +17,7 @@ type DatabaseConfig struct {
 	Password string
 }
 
-type User struct {
+type UserConfig struct {
 	Userid   string
 	Password string
 }
