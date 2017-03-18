@@ -35,7 +35,7 @@ func NewServer(config *Config, driver *Driver) (server *Server) {
 	server.Engine.GET("/ping", server.Ping)
 	server.Router.GET("/recent", server.Recent)
 	server.Router.GET("/bounced", server.Bounced)
-	server.Router.GET("/blacklist", server.blacklist)
+	server.Router.GET("/blacklist", server.Blacklist)
 
 	return
 }
@@ -158,7 +158,7 @@ func (server *Server) Bounced(c *gin.Context) {
 	}
 }
 
-func (server *Server) blacklist(c *gin.Context) {
+func (server *Server) Blacklist(c *gin.Context) {
 	var softbounce *bool
 	var limit, offset uint64
 	var err error
