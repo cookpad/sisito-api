@@ -55,7 +55,7 @@ func (server *Server) Recent(c *gin.Context) {
 		c.JSON(400, gin.H{
 			"message": `"recipient" or "digest" is not present`,
 		})
-	} else if recipient == "" && digest == "" {
+	} else if recipient != "" && digest != "" {
 		c.JSON(400, gin.H{
 			"message": `Cannot pass both "recipient" and "digest"`,
 		})
