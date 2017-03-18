@@ -199,7 +199,7 @@ func TestBlacklistRecipientsWithoutOptions(t *testing.T) {
 			return nil, nil
 		})
 
-	recipients, _ := driver.BlacklistRecipients(nil, nil, 0, 0)
+	recipients, _ := driver.BlacklistRecipients("", nil, nil, 0, 0)
 
 	assert.Equal(recipients, []string{"foo@example.com"})
 }
