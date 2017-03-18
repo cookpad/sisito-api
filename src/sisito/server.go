@@ -141,7 +141,7 @@ func (server *Server) bounced(c *gin.Context) {
 			value = digest
 		}
 
-		bounced, err := server.Driver.isBounced(name, value, senderdomain)
+		bounced, err := server.Driver.IsBounced(name, value, senderdomain)
 
 		if err != nil {
 			panic(err)

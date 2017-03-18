@@ -73,3 +73,62 @@ func TestRecentlyBouncedWithoutSenderdomain(t *testing.T) {
 
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
+
+func TestIsBounced(t *testing.T) {
+	assert := assert.New(t)
+	driver := &Driver{DbMap: &gorp.DbMap{}}
+
+	var guard *monkey.PatchGuard
+	guard = monkey.PatchInstanceMethod(
+		reflect.TypeOf(driver.DbMap), "SelectInt",
+		func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer guard.Unpatch()
+			guard.Restore()
+
+			assert.Equal(`
+    SELECT 1
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE bm.recipient = ?
+       AND bm.senderdomain = ?
+       AND wm.id IS NULL
+     LIMIT 1`, query)
+
+			assert.Equal([]interface{}{"foo@example.com", "example.net"}, args)
+
+			return 1, nil
+		})
+
+	count, _ := driver.IsBounced("recipient", "foo@example.com", "example.net")
+
+	assert.Equal(count, true)
+}
+
+func TestIsBouncedWithoutSenderdomain(t *testing.T) {
+	assert := assert.New(t)
+	driver := &Driver{DbMap: &gorp.DbMap{}}
+
+	var guard *monkey.PatchGuard
+	guard = monkey.PatchInstanceMethod(
+		reflect.TypeOf(driver.DbMap), "SelectInt",
+		func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer guard.Unpatch()
+			guard.Restore()
+
+			assert.Equal(`
+    SELECT 1
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE bm.recipient = ?
+       AND wm.id IS NULL
+     LIMIT 1`, query)
+
+			assert.Equal([]interface{}{"foo@example.com"}, args)
+
+			return 1, nil
+		})
+
+	count, _ := driver.IsBounced("recipient", "foo@example.com", "")
+
+	assert.Equal(count, true)
+}

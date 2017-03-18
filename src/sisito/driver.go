@@ -103,7 +103,7 @@ func (driver *Driver) RecentlyBounced(name string, value string, senderdomain st
 	return
 }
 
-func (driver *Driver) isBounced(name string, value string, senderdomain string) (bounced bool, err error) {
+func (driver *Driver) IsBounced(name string, value string, senderdomain string) (bounced bool, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT 1
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
