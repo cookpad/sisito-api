@@ -32,16 +32,21 @@ func NewServer(config *Config, driver *Driver) (server *Server) {
 		server.Router = engine.Group("", gin.BasicAuth(accounts))
 	}
 
+	server.Engine.GET("/ping", server.Ping)
+	server.Router.GET("/recent", server.Recent)
+	server.Router.GET("/bounced", server.bounced)
+	server.Router.GET("/blacklist", server.blacklist)
+
 	return
 }
 
-func (server *Server) ping(c *gin.Context) {
+func (server *Server) Ping(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "pong",
 	})
 }
 
-func (server *Server) recent(c *gin.Context) {
+func (server *Server) Recent(c *gin.Context) {
 	recipient := c.Query("recipient")
 	digest := c.Query("digest")
 	senderdomain := c.Query("senderdomain")
@@ -214,13 +219,5 @@ func (server *Server) blacklist(c *gin.Context) {
 }
 
 func (server *Server) Run() {
-	engine := server.Engine
-	router := server.Router
-
-	engine.GET("/ping", server.ping)
-	router.GET("/recent", server.recent)
-	router.GET("/bounced", server.bounced)
-	router.GET("/blacklist", server.blacklist)
-
-	engine.Run()
+	server.Engine.Run()
 }
