@@ -132,3 +132,74 @@ func TestIsBouncedWithoutSenderdomain(t *testing.T) {
 
 	assert.Equal(count, true)
 }
+
+func TestBlacklistRecipients(t *testing.T) {
+	assert := assert.New(t)
+	driver := &Driver{DbMap: &gorp.DbMap{}}
+
+	var guard *monkey.PatchGuard
+	guard = monkey.PatchInstanceMethod(
+		reflect.TypeOf(driver.DbMap), "Select",
+		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer guard.Unpatch()
+			guard.Restore()
+
+			assert.Equal(`
+    SELECT bm.recipient
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE wm.id IS NULL
+       AND bm.senderdomain = ?
+       AND bm.reason IN (?,?)
+       AND bm.softbounce = ?
+  GROUP BY recipient
+  ORDER BY recipient
+     LIMIT ?
+    OFFSET ?`, query)
+
+			assert.Equal([]interface{}{
+				"example.net", "userunknown", "filtered", false, uint64(100), uint64(100)}, args)
+
+			rows := i.(*[]string)
+			*rows = append(*rows, "foo@example.com")
+
+			return nil, nil
+		})
+
+	recipients, _ := driver.BlacklistRecipients(
+		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100)
+
+	assert.Equal(recipients, []string{"foo@example.com"})
+}
+
+func TestBlacklistRecipientsWithoutOptions(t *testing.T) {
+	assert := assert.New(t)
+	driver := &Driver{DbMap: &gorp.DbMap{}}
+
+	var guard *monkey.PatchGuard
+	guard = monkey.PatchInstanceMethod(
+		reflect.TypeOf(driver.DbMap), "Select",
+		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer guard.Unpatch()
+			guard.Restore()
+
+			assert.Equal(`
+    SELECT bm.recipient
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE wm.id IS NULL
+  GROUP BY recipient
+  ORDER BY recipient`, query)
+
+			assert.Equal([]interface{}{}, args)
+
+			rows := i.(*[]string)
+			*rows = append(*rows, "foo@example.com")
+
+			return nil, nil
+		})
+
+	recipients, _ := driver.BlacklistRecipients(nil, nil, 0, 0)
+
+	assert.Equal(recipients, []string{"foo@example.com"})
+}

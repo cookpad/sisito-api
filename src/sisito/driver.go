@@ -142,7 +142,7 @@ func (driver *Driver) IsBounced(name string, value string, senderdomain string) 
 	return
 }
 
-func (driver *Driver) blacklistRecipients(senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64) (recipients []string, err error) {
+func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64) (recipients []string, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.recipient
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm

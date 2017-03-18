@@ -202,7 +202,7 @@ func (server *Server) blacklist(c *gin.Context) {
 	}
 
 	var recipients []string
-	recipients, err = server.Driver.blacklistRecipients(senderdomain, reasons, softbounce, limit, offset)
+	recipients, err = server.Driver.BlacklistRecipients(senderdomain, reasons, softbounce, limit, offset)
 
 	if err != nil {
 		panic(err)
