@@ -30,8 +30,8 @@ else
 	GOPATH=$(RUNTIME_GOPATH) go build -o $(PROGRAM)
 endif
 
-.PHONY: $(PROGRAM) test
-test:
+.PHONY: test
+test: $(TEST_SRC)
 	GOPATH=$(RUNTIME_GOPATH) go test -v $(TEST_SRC)
 
 .PHONY: clean

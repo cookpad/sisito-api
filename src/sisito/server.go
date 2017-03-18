@@ -34,7 +34,7 @@ func NewServer(config *Config, driver *Driver) (server *Server) {
 
 	server.Engine.GET("/ping", server.Ping)
 	server.Router.GET("/recent", server.Recent)
-	server.Router.GET("/bounced", server.bounced)
+	server.Router.GET("/bounced", server.Bounced)
 	server.Router.GET("/blacklist", server.blacklist)
 
 	return
@@ -121,7 +121,7 @@ func (server *Server) Recent(c *gin.Context) {
 	}
 }
 
-func (server *Server) bounced(c *gin.Context) {
+func (server *Server) Bounced(c *gin.Context) {
 	recipient := c.Query("recipient")
 	digest := c.Query("digest")
 	senderdomain := c.Query("senderdomain")
@@ -130,7 +130,7 @@ func (server *Server) bounced(c *gin.Context) {
 		c.JSON(400, gin.H{
 			"message": `"recipient" or "digest" is not present`,
 		})
-	} else if recipient == "" && digest == "" {
+	} else if recipient != "" && digest != "" {
 		c.JSON(400, gin.H{
 			"message": `Cannot pass both "recipient" and "digest"`,
 		})
