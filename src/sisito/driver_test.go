@@ -74,7 +74,7 @@ func TestRecentlyListedWithoutSenderdomain(t *testing.T) {
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestCountListed(t *testing.T) {
+func TestListed(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{DbMap: &gorp.DbMap{}}
 
@@ -99,12 +99,12 @@ func TestCountListed(t *testing.T) {
 			return 1, nil
 		})
 
-	count, _ := driver.CountListed("recipient", "foo@example.com", "example.net")
+	count, _ := driver.Listed("recipient", "foo@example.com", "example.net")
 
 	assert.Equal(count, true)
 }
 
-func TestCountListedWithoutSenderdomain(t *testing.T) {
+func TestListedWithoutSenderdomain(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{DbMap: &gorp.DbMap{}}
 
@@ -128,7 +128,7 @@ func TestCountListedWithoutSenderdomain(t *testing.T) {
 			return 1, nil
 		})
 
-	count, _ := driver.CountListed("recipient", "foo@example.com", "")
+	count, _ := driver.Listed("recipient", "foo@example.com", "")
 
 	assert.Equal(count, true)
 }

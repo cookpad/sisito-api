@@ -103,7 +103,7 @@ func (driver *Driver) RecentlyListed(name string, value string, senderdomain str
 	return
 }
 
-func (driver *Driver) CountListed(name string, value string, senderdomain string) (listed bool, err error) {
+func (driver *Driver) Listed(name string, value string, senderdomain string) (listed bool, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT 1
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm

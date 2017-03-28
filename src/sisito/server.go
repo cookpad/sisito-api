@@ -146,7 +146,7 @@ func (server *Server) Listed(c *gin.Context) {
 			value = digest
 		}
 
-		listed, err := server.Driver.CountListed(name, value, senderdomain)
+		listed, err := server.Driver.Listed(name, value, senderdomain)
 
 		if err != nil {
 			panic(err)

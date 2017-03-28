@@ -153,7 +153,7 @@ func TestListedWithRecipient(t *testing.T) {
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "CountListed",
+		reflect.TypeOf(driver), "Listed",
 		func(_ *Driver, name string, value string, senderdomain string) (listed bool, err error) {
 			defer guard.Unpatch()
 			guard.Restore()
@@ -183,7 +183,7 @@ func TestListedWithDigest(t *testing.T) {
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "CountListed",
+		reflect.TypeOf(driver), "Listed",
 		func(_ *Driver, name string, value string, senderdomain string) (listed bool, err error) {
 			defer guard.Unpatch()
 			guard.Restore()
