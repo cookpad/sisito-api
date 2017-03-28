@@ -2,7 +2,7 @@ package sisito
 
 import (
 	"github.com/gin-contrib/gzip"
-	"gopkg.in/gin-gonic/gin.v1"
+	"github.com/gin-gonic/gin"
 	"strconv"
 )
 

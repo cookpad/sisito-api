@@ -15,7 +15,7 @@ all: $(PROGRAM)
 
 .PHONY: go-get
 go-get:
-	go get gopkg.in/gin-gonic/gin.v1
+	go get github.com/gin-gonic/gin
 	go get github.com/BurntSushi/toml
 	go get github.com/go-sql-driver/mysql
 	go get gopkg.in/gorp.v1
