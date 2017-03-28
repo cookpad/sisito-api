@@ -1,0 +1,14 @@
+[database]
+host = "{{ var "SISITO_DB_HOST" }}"
+port = {{ var "SISITO_DB_PORT" | default 3306 }}
+database = "{{ var "SISITO_DB_NAME" }}"
+username = "{{ var "SISITO_DB_USERNAME" }}"
+password = "{{ var "SISITO_DB_PASSWORD" }}"
+
+{{ if var "BASIC_AUTH" | ne "" }}
+{{ range $userid, $password := var "BASIC_AUTH" | split "," | splitkv ":" }}
+[[user]]
+userid = "{{ $userid }}"
+password = "{{ $password }}"
+{{ end }}
+{{ end }}

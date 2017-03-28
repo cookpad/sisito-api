@@ -1,0 +1,100 @@
+mysql:
+  image: "mysql:5.6"
+  environment:
+    MYSQL_ROOT_PASSWORD: password
+  entrypoint: |
+    bash -c '
+    cat <<EOF | bash &
+    export MYSQL_PWD=$$MYSQL_ROOT_PASSWORD
+    while true; do mysql -e "SELECT 1 FROM mysql.user" 1>/dev/null 2>/dev/null && break; sleep 1; done
+    mysql -e "DROP DATABASE sisito_development" 2>/dev/null
+    mysql -e "CREATE DATABASE sisito_development"
+    cat <<SQL | mysql sisito_development
+      CREATE TABLE bounce_mails (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        timestamp datetime NOT NULL,
+        lhost varchar(255) NOT NULL,
+        rhost varchar(255) NOT NULL,
+        alias varchar(255) NOT NULL,
+        listid varchar(255) NOT NULL,
+        reason varchar(255) NOT NULL,
+        action varchar(255) NOT NULL,
+        subject varchar(255) NOT NULL,
+        messageid varchar(255) NOT NULL,
+        smtpagent varchar(255) NOT NULL,
+        softbounce tinyint(1) NOT NULL,
+        smtpcommand varchar(255) NOT NULL,
+        destination varchar(255) NOT NULL,
+        senderdomain varchar(255) NOT NULL,
+        feedbacktype varchar(255) NOT NULL,
+        diagnosticcode varchar(255) NOT NULL,
+        deliverystatus varchar(255) NOT NULL,
+        timezoneoffset varchar(255) NOT NULL,
+        addresser varchar(255) NOT NULL,
+        recipient varchar(255) NOT NULL,
+        digest varchar(255) NOT NULL,
+        created_at datetime NOT NULL,
+        updated_at datetime NOT NULL,
+        PRIMARY KEY (id),
+        KEY idx_addresser_senderdomain (addresser),
+        KEY idx_destination (destination),
+        KEY idx_digest (digest),
+        KEY idx_messageid (messageid),
+        KEY idx_reason_recipient (reason,recipient),
+        KEY idx_recipient (recipient),
+        KEY idx_senderdomain (senderdomain),
+        KEY idx_softbounce_recipient (softbounce,recipient),
+        KEY idx_timestamp (timestamp)
+      );
+      CREATE TABLE whitelist_mails (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        recipient varchar(255) NOT NULL,
+        senderdomain varchar(255) NOT NULL,
+        created_at datetime NOT NULL,
+        updated_at datetime NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY idx_recipient_senderdomain (recipient,senderdomain),
+        KEY idx_created_at (created_at)
+      );
+      INSERT INTO bounce_mails VALUES (
+        1,                                          -- id
+        "2017-03-01 00:00:00",                      -- timestamp
+        "mail.sender.example.com",                  -- lhost
+        "mail.example.com",                         -- rhost
+        "foo@example.com",                          -- alias
+        "",                                         -- listid
+        "filtered",                                 -- reason
+        "failed",                                   -- action
+        "how are you?",                             -- subject
+        "foo_example_com_message_id",               -- messageid
+        "MTA::Postfix",                             -- smtpagent
+        1,                                          -- softbounce
+        "DATA",                                     -- smtpcommand
+        "example.com",                              -- destination
+        "sender.example.com",                       -- senderdomain
+        "",                                         -- feedbacktype
+        "550 Unknown user foo@example.com",         -- diagnosticcode
+        "5.0.0",                                    -- deliverystatus
+        "+0900",                                    -- timezoneoffset
+        "no-reply@sender.example.com",              -- addresser
+        "foo@example.com",                          -- recipient
+        "767e74eab7081c41e0b83630511139d130249666", -- digest
+        "2017-03-01 00:00:00",                      -- created_at
+        "2017-03-01 00:00:00"                       -- updated_at
+      );
+    SQL
+    EOF
+    /entrypoint.sh mysqld
+    '
+sisito_api:
+  build: .
+  environment:
+    SISITO_DB_NAME: sisito_development
+    SISITO_DB_USERNAME: root
+    SISITO_DB_PASSWORD: password
+    SISITO_DB_HOST: mysql
+    BASIC_AUTH: foo:bar,zoo:baz
+  ports:
+    - 8080:8080
+  links:
+    - mysql

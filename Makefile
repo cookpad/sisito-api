@@ -51,5 +51,5 @@ package/linux:
 	docker rm $(UBUNTU_CONTAINER_NAME)
 
 .PHONY: docker/build/ubuntu
-docker/build/ubuntu: docker/Dockerfile.ubuntu
-	docker build -f docker/Dockerfile.ubuntu -t $(UBUNTU_IMAGE) .
+docker/build/ubuntu: etc/Dockerfile.ubuntu
+	docker build -f etc/Dockerfile.ubuntu -t $(UBUNTU_IMAGE) .
