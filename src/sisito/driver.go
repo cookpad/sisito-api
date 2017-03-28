@@ -13,7 +13,8 @@ import (
 )
 
 type Driver struct {
-	DbMap *gorp.DbMap
+	Config *Config
+	DbMap  *gorp.DbMap
 }
 
 func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
@@ -37,7 +38,7 @@ func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
 		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "", log.Ldate|log.Ltime))
 	}
 
-	driver = &Driver{DbMap: dbmap}
+	driver = &Driver{Config: config, DbMap: dbmap}
 
 	return
 }
@@ -74,6 +75,19 @@ type BounceMail struct {
 	Whitelisted    uint8
 }
 
+func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
+	for _, filter := range driver.Config.Filter {
+		buf.WriteString(`
+       AND bm.`)
+		buf.WriteString(filter.Key)
+		buf.WriteString(" ")
+		buf.WriteString(filter.Operator)
+		buf.WriteString(" ?")
+
+		*params = append(*params, filter.Value)
+	}
+}
+
 func (driver *Driver) RecentlyListed(name string, value string, senderdomain string) (listed []BounceMail, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -90,6 +104,8 @@ func (driver *Driver) RecentlyListed(name string, value string, senderdomain str
 
 		params = append(params, senderdomain)
 	}
+
+	driver.appendFilter(sqlBuf, &params)
 
 	sqlBuf.WriteString(`
   ORDER BY bm.id DESC
@@ -119,6 +135,8 @@ func (driver *Driver) Listed(name string, value string, senderdomain string) (li
 
 		params = append(params, senderdomain)
 	}
+
+	driver.appendFilter(sqlBuf, &params)
 
 	sqlBuf.WriteString(`
        AND wm.id IS NULL
@@ -180,6 +198,8 @@ func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string,
 
 		params = append(params, *softbounce)
 	}
+
+	driver.appendFilter(sqlBuf, &params)
 
 	sqlBuf.WriteString(`
   GROUP BY recipient

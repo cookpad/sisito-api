@@ -7,6 +7,7 @@ import (
 type Config struct {
 	Database DatabaseConfig
 	User     []UserConfig
+	Filter   []FilterConfig
 }
 
 type DatabaseConfig struct {
@@ -20,6 +21,12 @@ type DatabaseConfig struct {
 type UserConfig struct {
 	Userid   string
 	Password string
+}
+
+type FilterConfig struct {
+	Key      string
+	Operator string
+	Value    string
 }
 
 func LoadConfig(flags *Flags) (config *Config, err error) {
@@ -42,6 +49,14 @@ func LoadConfig(flags *Flags) (config *Config, err error) {
 
 	if database.Username == "" {
 		database.Username = "root"
+	}
+
+	for i := 0; i < len(config.Filter); i++ {
+		filter := &config.Filter[i]
+
+		if filter.Operator == "" {
+			filter.Operator = "="
+		}
 	}
 
 	return

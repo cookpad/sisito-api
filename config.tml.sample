@@ -8,3 +8,12 @@ password = ""
 [[user]]
 userid = "foo"
 password = "bar"
+
+[[filter]]
+key = "recipient"
+value = "foo@example.com"
+
+[[filter]]
+key = "senderdomain"
+operator = "<>"
+value = "example.net"
