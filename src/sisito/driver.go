@@ -74,7 +74,7 @@ type BounceMail struct {
 	Whitelisted    uint8
 }
 
-func (driver *Driver) RecentlyBounced(name string, value string, senderdomain string) (bounced []BounceMail, err error) {
+func (driver *Driver) RecentlyListed(name string, value string, senderdomain string) (listed []BounceMail, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -97,13 +97,13 @@ func (driver *Driver) RecentlyBounced(name string, value string, senderdomain st
 
 	sql := sqlBuf.String()
 
-	bounced = []BounceMail{}
-	_, err = driver.DbMap.Select(&bounced, sql, params...)
+	listed = []BounceMail{}
+	_, err = driver.DbMap.Select(&listed, sql, params...)
 
 	return
 }
 
-func (driver *Driver) IsBounced(name string, value string, senderdomain string) (bounced bool, err error) {
+func (driver *Driver) CountListed(name string, value string, senderdomain string) (listed bool, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT 1
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -134,9 +134,9 @@ func (driver *Driver) IsBounced(name string, value string, senderdomain string) 
 	}
 
 	if count > 0 {
-		bounced = true
+		listed = true
 	} else {
-		bounced = false
+		listed = false
 	}
 
 	return

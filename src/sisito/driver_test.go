@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestRecentlyBounced(t *testing.T) {
+func TestRecentlyListed(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{DbMap: &gorp.DbMap{}}
 
@@ -37,12 +37,12 @@ func TestRecentlyBounced(t *testing.T) {
 			return nil, nil
 		})
 
-	rows, _ := driver.RecentlyBounced("recipient", "foo@example.com", "example.net")
+	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net")
 
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestRecentlyBouncedWithoutSenderdomain(t *testing.T) {
+func TestRecentlyListedWithoutSenderdomain(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{DbMap: &gorp.DbMap{}}
 
@@ -69,12 +69,12 @@ func TestRecentlyBouncedWithoutSenderdomain(t *testing.T) {
 			return nil, nil
 		})
 
-	rows, _ := driver.RecentlyBounced("recipient", "foo@example.com", "")
+	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "")
 
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestIsBounced(t *testing.T) {
+func TestCountListed(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{DbMap: &gorp.DbMap{}}
 
@@ -99,12 +99,12 @@ func TestIsBounced(t *testing.T) {
 			return 1, nil
 		})
 
-	count, _ := driver.IsBounced("recipient", "foo@example.com", "example.net")
+	count, _ := driver.CountListed("recipient", "foo@example.com", "example.net")
 
 	assert.Equal(count, true)
 }
 
-func TestIsBouncedWithoutSenderdomain(t *testing.T) {
+func TestCountListedWithoutSenderdomain(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{DbMap: &gorp.DbMap{}}
 
@@ -128,7 +128,7 @@ func TestIsBouncedWithoutSenderdomain(t *testing.T) {
 			return 1, nil
 		})
 
-	count, _ := driver.IsBounced("recipient", "foo@example.com", "")
+	count, _ := driver.CountListed("recipient", "foo@example.com", "")
 
 	assert.Equal(count, true)
 }

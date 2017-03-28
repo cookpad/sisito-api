@@ -31,8 +31,8 @@ func TestRecentWithRecipient(t *testing.T) {
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "RecentlyBounced",
-		func(_ *Driver, name string, value string, senderdomain string) (bounced []BounceMail, err error) {
+		reflect.TypeOf(driver), "RecentlyListed",
+		func(_ *Driver, name string, value string, senderdomain string) (listed []BounceMail, err error) {
 			defer guard.Unpatch()
 			guard.Restore()
 
@@ -40,7 +40,7 @@ func TestRecentWithRecipient(t *testing.T) {
 			assert.Equal("foo@example.com", value)
 			assert.Equal("example.net", senderdomain)
 
-			bounced = []BounceMail{BounceMail{Id: 1}}
+			listed = []BounceMail{BounceMail{Id: 1}}
 
 			return
 		})
@@ -80,8 +80,8 @@ func TestRecentWithDigest(t *testing.T) {
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "RecentlyBounced",
-		func(_ *Driver, name string, value string, senderdomain string) (bounced []BounceMail, err error) {
+		reflect.TypeOf(driver), "RecentlyListed",
+		func(_ *Driver, name string, value string, senderdomain string) (listed []BounceMail, err error) {
 			defer guard.Unpatch()
 			guard.Restore()
 
@@ -89,7 +89,7 @@ func TestRecentWithDigest(t *testing.T) {
 			assert.Equal("767e74eab7081c41e0b83630511139d130249666", value)
 			assert.Equal("", senderdomain)
 
-			bounced = []BounceMail{BounceMail{Id: 1}}
+			listed = []BounceMail{BounceMail{Id: 1}}
 
 			return
 		})
@@ -145,7 +145,7 @@ func TestRecentWithoutRecipientDigest(t *testing.T) {
 	assert.Equal(body, `{"message":"\"recipient\" or \"digest\" is not present"}`+"\n")
 }
 
-func TestBouncedWithRecipient(t *testing.T) {
+func TestListedWithRecipient(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
@@ -153,8 +153,8 @@ func TestBouncedWithRecipient(t *testing.T) {
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "IsBounced",
-		func(_ *Driver, name string, value string, senderdomain string) (bounced bool, err error) {
+		reflect.TypeOf(driver), "CountListed",
+		func(_ *Driver, name string, value string, senderdomain string) (listed bool, err error) {
 			defer guard.Unpatch()
 			guard.Restore()
 
@@ -162,20 +162,20 @@ func TestBouncedWithRecipient(t *testing.T) {
 			assert.Equal("foo@example.com", value)
 			assert.Equal("example.net", senderdomain)
 
-			bounced = true
+			listed = true
 
 			return
 		})
 
 	ts := httptest.NewServer(server.Engine)
-	res, _ := http.Get(ts.URL + "/bounced?recipient=foo@example.com&senderdomain=example.net")
+	res, _ := http.Get(ts.URL + "/listed?recipient=foo@example.com&senderdomain=example.net")
 	body, status := readResponse(res)
 
 	assert.Equal(200, status)
-	assert.Equal(body, `{"bounced":true}`+"\n")
+	assert.Equal(body, `{"listed":true}`+"\n")
 }
 
-func TestBouncedWithDigest(t *testing.T) {
+func TestListedWithDigest(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
@@ -183,8 +183,8 @@ func TestBouncedWithDigest(t *testing.T) {
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "IsBounced",
-		func(_ *Driver, name string, value string, senderdomain string) (bounced bool, err error) {
+		reflect.TypeOf(driver), "CountListed",
+		func(_ *Driver, name string, value string, senderdomain string) (listed bool, err error) {
 			defer guard.Unpatch()
 			guard.Restore()
 
@@ -192,37 +192,37 @@ func TestBouncedWithDigest(t *testing.T) {
 			assert.Equal("767e74eab7081c41e0b83630511139d130249666", value)
 			assert.Equal("example.net", senderdomain)
 
-			bounced = false
+			listed = false
 
 			return
 		})
 
 	ts := httptest.NewServer(server.Engine)
-	res, _ := http.Get(ts.URL + "/bounced?digest=767e74eab7081c41e0b83630511139d130249666&senderdomain=example.net")
+	res, _ := http.Get(ts.URL + "/listed?digest=767e74eab7081c41e0b83630511139d130249666&senderdomain=example.net")
 	body, status := readResponse(res)
 
 	assert.Equal(200, status)
-	assert.Equal(body, `{"bounced":false}`+"\n")
+	assert.Equal(body, `{"listed":false}`+"\n")
 }
 
-func TestBouncedWithRecipientDigest(t *testing.T) {
+func TestListedWithRecipientDigest(t *testing.T) {
 	assert := assert.New(t)
 	server := NewServer(&Config{User: []UserConfig{}}, nil)
 
 	ts := httptest.NewServer(server.Engine)
-	res, _ := http.Get(ts.URL + "/bounced?recipient=foo@example.com&digest=767e74eab7081c41e0b83630511139d130249666&senderdomain=example.net")
+	res, _ := http.Get(ts.URL + "/listed?recipient=foo@example.com&digest=767e74eab7081c41e0b83630511139d130249666&senderdomain=example.net")
 	body, status := readResponse(res)
 
 	assert.Equal(400, status)
 	assert.Equal(body, `{"message":"Cannot pass both \"recipient\" and \"digest\""}`+"\n")
 }
 
-func TestBouncedWithoutRecipientDigest(t *testing.T) {
+func TestListedWithoutRecipientDigest(t *testing.T) {
 	assert := assert.New(t)
 	server := NewServer(&Config{User: []UserConfig{}}, nil)
 
 	ts := httptest.NewServer(server.Engine)
-	res, _ := http.Get(ts.URL + "/bounced?senderdomain=example.net")
+	res, _ := http.Get(ts.URL + "/listed?senderdomain=example.net")
 	body, status := readResponse(res)
 
 	assert.Equal(400, status)

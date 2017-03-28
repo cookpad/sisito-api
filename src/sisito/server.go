@@ -34,7 +34,7 @@ func NewServer(config *Config, driver *Driver) (server *Server) {
 
 	server.Engine.GET("/ping", server.Ping)
 	server.Router.GET("/recent", server.Recent)
-	server.Router.GET("/bounced", server.Bounced)
+	server.Router.GET("/listed", server.Listed)
 	server.Router.GET("/blacklist", server.Blacklist)
 
 	return
@@ -71,14 +71,14 @@ func (server *Server) Recent(c *gin.Context) {
 			value = digest
 		}
 
-		bounced, err := server.Driver.RecentlyBounced(name, value, senderdomain)
+		listed, err := server.Driver.RecentlyListed(name, value, senderdomain)
 
 		if err != nil {
 			panic(err)
 		}
 
-		if len(bounced) > 0 {
-			row := bounced[0]
+		if len(listed) > 0 {
+			row := listed[0]
 
 			softbounce := false
 
@@ -121,7 +121,7 @@ func (server *Server) Recent(c *gin.Context) {
 	}
 }
 
-func (server *Server) Bounced(c *gin.Context) {
+func (server *Server) Listed(c *gin.Context) {
 	recipient := c.Query("recipient")
 	digest := c.Query("digest")
 	senderdomain := c.Query("senderdomain")
@@ -146,14 +146,14 @@ func (server *Server) Bounced(c *gin.Context) {
 			value = digest
 		}
 
-		bounced, err := server.Driver.IsBounced(name, value, senderdomain)
+		listed, err := server.Driver.CountListed(name, value, senderdomain)
 
 		if err != nil {
 			panic(err)
 		}
 
 		c.JSON(200, gin.H{
-			"bounced": bounced,
+			"listed": listed,
 		})
 	}
 }
