@@ -65,7 +65,8 @@ func TestRecentWithRecipient(t *testing.T) {
 		`"senderdomain":"",`+
 		`"smtpagent":"",`+
 		`"smtpcommand":"",`+
-		`"softbounce":false,"subject":"",`+
+		`"softbounce":false,`+
+		`"subject":"",`+
 		`"timestamp":"0001-01-01T00:00:00Z",`+
 		`"timezoneoffset":"",`+
 		`"updated_at":"0001-01-01T00:00:00Z",`+
@@ -114,7 +115,8 @@ func TestRecentWithDigest(t *testing.T) {
 		`"senderdomain":"",`+
 		`"smtpagent":"",`+
 		`"smtpcommand":"",`+
-		`"softbounce":false,"subject":"",`+
+		`"softbounce":false,`+
+		`"subject":"",`+
 		`"timestamp":"0001-01-01T00:00:00Z",`+
 		`"timezoneoffset":"",`+
 		`"updated_at":"0001-01-01T00:00:00Z",`+
