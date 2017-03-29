@@ -50,6 +50,7 @@ func (server *Server) Recent(c *gin.Context) {
 	recipient := c.Query("recipient")
 	digest := c.Query("digest")
 	senderdomain := c.Query("senderdomain")
+	filterStr := c.Query("filter")
 
 	if recipient == "" && digest == "" {
 		c.JSON(400, gin.H{
@@ -62,6 +63,7 @@ func (server *Server) Recent(c *gin.Context) {
 	} else {
 		var name string
 		var value string
+		var useFilter bool
 
 		if recipient != "" && digest == "" {
 			name = "recipient"
@@ -71,7 +73,22 @@ func (server *Server) Recent(c *gin.Context) {
 			value = digest
 		}
 
-		listed, err := server.Driver.RecentlyListed(name, value, senderdomain)
+		if filterStr != "" {
+			var err error
+			useFilter, err = strconv.ParseBool(filterStr)
+
+			if err != nil {
+				c.JSON(400, gin.H{
+					"message": err.Error(),
+				})
+
+				return
+			}
+		} else {
+			useFilter = true
+		}
+
+		listed, err := server.Driver.RecentlyListed(name, value, senderdomain, useFilter)
 
 		if err != nil {
 			panic(err)
@@ -125,6 +142,7 @@ func (server *Server) Listed(c *gin.Context) {
 	recipient := c.Query("recipient")
 	digest := c.Query("digest")
 	senderdomain := c.Query("senderdomain")
+	filterStr := c.Query("filter")
 
 	if recipient == "" && digest == "" {
 		c.JSON(400, gin.H{
@@ -137,6 +155,7 @@ func (server *Server) Listed(c *gin.Context) {
 	} else {
 		var name string
 		var value string
+		var useFilter bool
 
 		if recipient != "" && digest == "" {
 			name = "recipient"
@@ -146,7 +165,22 @@ func (server *Server) Listed(c *gin.Context) {
 			value = digest
 		}
 
-		listed, err := server.Driver.Listed(name, value, senderdomain)
+		if filterStr != "" {
+			var err error
+			useFilter, err = strconv.ParseBool(filterStr)
+
+			if err != nil {
+				c.JSON(400, gin.H{
+					"message": err.Error(),
+				})
+
+				return
+			}
+		} else {
+			useFilter = true
+		}
+
+		listed, err := server.Driver.Listed(name, value, senderdomain, useFilter)
 
 		if err != nil {
 			panic(err)
@@ -161,6 +195,7 @@ func (server *Server) Listed(c *gin.Context) {
 func (server *Server) Blacklist(c *gin.Context) {
 	var softbounce *bool
 	var limit, offset uint64
+	var useFilter bool
 	var err error
 
 	senderdomain := c.Query("senderdomain")
@@ -168,6 +203,7 @@ func (server *Server) Blacklist(c *gin.Context) {
 	softbounceStr := c.Query("softbounce")
 	limitStr := c.Query("limit")
 	offsetStr := c.Query("offset")
+	filterStr := c.Query("filter")
 
 	if softbounceStr != "" {
 		softbounce = new(bool)
@@ -206,8 +242,22 @@ func (server *Server) Blacklist(c *gin.Context) {
 		}
 	}
 
+	if filterStr != "" {
+		useFilter, err = strconv.ParseBool(filterStr)
+
+		if err != nil {
+			c.JSON(400, gin.H{
+				"message": err.Error(),
+			})
+
+			return
+		}
+	} else {
+		useFilter = true
+	}
+
 	var recipients []string
-	recipients, err = server.Driver.BlacklistRecipients(senderdomain, reasons, softbounce, limit, offset)
+	recipients, err = server.Driver.BlacklistRecipients(senderdomain, reasons, softbounce, limit, offset, useFilter)
 
 	if err != nil {
 		panic(err)

@@ -94,7 +94,7 @@ func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
 	}
 }
 
-func (driver *Driver) RecentlyListed(name string, value string, senderdomain string) (listed []BounceMail, err error) {
+func (driver *Driver) RecentlyListed(name string, value string, senderdomain string, useFilter bool) (listed []BounceMail, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -111,7 +111,9 @@ func (driver *Driver) RecentlyListed(name string, value string, senderdomain str
 		params = append(params, senderdomain)
 	}
 
-	driver.appendFilter(sqlBuf, &params)
+	if useFilter {
+		driver.appendFilter(sqlBuf, &params)
+	}
 
 	sqlBuf.WriteString(`
   ORDER BY bm.id DESC
@@ -125,7 +127,7 @@ func (driver *Driver) RecentlyListed(name string, value string, senderdomain str
 	return
 }
 
-func (driver *Driver) Listed(name string, value string, senderdomain string) (listed bool, err error) {
+func (driver *Driver) Listed(name string, value string, senderdomain string, useFilter bool) (listed bool, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT 1
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -142,7 +144,9 @@ func (driver *Driver) Listed(name string, value string, senderdomain string) (li
 		params = append(params, senderdomain)
 	}
 
-	driver.appendFilter(sqlBuf, &params)
+	if useFilter {
+		driver.appendFilter(sqlBuf, &params)
+	}
 
 	sqlBuf.WriteString(`
        AND wm.id IS NULL
@@ -166,7 +170,7 @@ func (driver *Driver) Listed(name string, value string, senderdomain string) (li
 	return
 }
 
-func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64) (recipients []string, err error) {
+func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
 	sqlBase := fmt.Sprintf(`
     SELECT bm.recipient
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
@@ -205,7 +209,9 @@ func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string,
 		params = append(params, *softbounce)
 	}
 
-	driver.appendFilter(sqlBuf, &params)
+	if useFilter {
+		driver.appendFilter(sqlBuf, &params)
+	}
 
 	sqlBuf.WriteString(`
   GROUP BY bm.recipient
