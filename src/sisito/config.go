@@ -27,6 +27,7 @@ type FilterConfig struct {
 	Key      string
 	Operator string
 	Value    string
+	Sql      string
 }
 
 func LoadConfig(flags *Flags) (config *Config, err error) {
@@ -54,7 +55,7 @@ func LoadConfig(flags *Flags) (config *Config, err error) {
 	for i := 0; i < len(config.Filter); i++ {
 		filter := &config.Filter[i]
 
-		if filter.Operator == "" {
+		if filter.Sql == "" && filter.Operator == "" {
 			filter.Operator = "="
 		}
 	}

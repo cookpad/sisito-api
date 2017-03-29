@@ -17,3 +17,6 @@ value = "foo@example.com"
 key = "senderdomain"
 operator = "<>"
 value = "example.net"
+
+[[filter]]
+sql = "softbounce = 0"
