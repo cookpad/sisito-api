@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestRecentlyListed(t *testing.T) {
+func TestDriverRecentlyListed(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
@@ -42,7 +42,7 @@ func TestRecentlyListed(t *testing.T) {
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestRecentlyListedWithFilter(t *testing.T) {
+func TestDriverRecentlyListedWithFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -80,7 +80,7 @@ func TestRecentlyListedWithFilter(t *testing.T) {
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestRecentlyListedWithoutFilter(t *testing.T) {
+func TestDriverRecentlyListedWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -117,7 +117,7 @@ func TestRecentlyListedWithoutFilter(t *testing.T) {
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestRecentlyListedWithSql(t *testing.T) {
+func TestDriverRecentlyListedWithSql(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -155,7 +155,7 @@ func TestRecentlyListedWithSql(t *testing.T) {
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestRecentlyListedWithoutSenderdomain(t *testing.T) {
+func TestDriverRecentlyListedWithoutSenderdomain(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
@@ -187,7 +187,7 @@ func TestRecentlyListedWithoutSenderdomain(t *testing.T) {
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
-func TestListed(t *testing.T) {
+func TestDriverListed(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
@@ -217,7 +217,7 @@ func TestListed(t *testing.T) {
 	assert.Equal(count, true)
 }
 
-func TestListedWithFilter(t *testing.T) {
+func TestDriverListedWithFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -252,7 +252,7 @@ func TestListedWithFilter(t *testing.T) {
 	assert.Equal(count, true)
 }
 
-func TestListedWithoutFilter(t *testing.T) {
+func TestDriverListedWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -286,7 +286,7 @@ func TestListedWithoutFilter(t *testing.T) {
 	assert.Equal(count, true)
 }
 
-func TestListedWithSql(t *testing.T) {
+func TestDriverListedWithSql(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -321,7 +321,7 @@ func TestListedWithSql(t *testing.T) {
 	assert.Equal(count, true)
 }
 
-func TestListedWithoutSenderdomain(t *testing.T) {
+func TestDriverListedWithoutSenderdomain(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
@@ -350,7 +350,7 @@ func TestListedWithoutSenderdomain(t *testing.T) {
 	assert.Equal(count, true)
 }
 
-func TestBlacklistRecipients(t *testing.T) {
+func TestDriverBlacklistRecipients(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
@@ -389,7 +389,7 @@ func TestBlacklistRecipients(t *testing.T) {
 	assert.Equal(recipients, []string{"foo@example.com"})
 }
 
-func TestBlacklistRecipientsWithFilter(t *testing.T) {
+func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -433,7 +433,7 @@ func TestBlacklistRecipientsWithFilter(t *testing.T) {
 	assert.Equal(recipients, []string{"foo@example.com"})
 }
 
-func TestBlacklistRecipientsWithoutFilter(t *testing.T) {
+func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -476,7 +476,7 @@ func TestBlacklistRecipientsWithoutFilter(t *testing.T) {
 	assert.Equal(recipients, []string{"foo@example.com"})
 }
 
-func TestBlacklistRecipientsWithSql(t *testing.T) {
+func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
@@ -520,7 +520,7 @@ func TestBlacklistRecipientsWithSql(t *testing.T) {
 	assert.Equal(recipients, []string{"foo@example.com"})
 }
 
-func TestBlacklistRecipientsWithoutOptions(t *testing.T) {
+func TestDriverBlacklistRecipientsWithoutOptions(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
