@@ -1,6 +1,6 @@
 SHELL          := /bin/bash
 PROGRAM        := sisito-api
-VERSION        := v0.1.8
+VERSION        := v0.1.9
 GOOS           := $(shell go env GOOS)
 GOARCH         := $(shell go env GOARCH)
 RUNTIME_GOPATH := $(GOPATH):$(shell pwd)
@@ -25,9 +25,9 @@ go-get:
 
 $(PROGRAM): $(SRC)
 ifeq ($(GOOS),linux)
-	GOPATH=$(RUNTIME_GOPATH) go build -a -tags netgo -installsuffix netgo -o $(PROGRAM)
+	GOPATH=$(RUNTIME_GOPATH) go build -ldflags "-X sisito.version=$(VERSION)" -a -tags netgo -installsuffix netgo -o $(PROGRAM)
 else
-	GOPATH=$(RUNTIME_GOPATH) go build -o $(PROGRAM)
+	GOPATH=$(RUNTIME_GOPATH) go build -ldflags "-X sisito.version=$(VERSION)" -o $(PROGRAM)
 endif
 
 .PHONY: test
