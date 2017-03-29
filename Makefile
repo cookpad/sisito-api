@@ -1,6 +1,6 @@
 SHELL          := /bin/bash
 PROGRAM        := sisito-api
-VERSION        := v0.1.9
+VERSION        := v0.2.0
 GOOS           := $(shell go env GOOS)
 GOARCH         := $(shell go env GOARCH)
 RUNTIME_GOPATH := $(GOPATH):$(shell pwd)
