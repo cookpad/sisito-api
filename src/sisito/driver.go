@@ -208,8 +208,8 @@ func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string,
 	driver.appendFilter(sqlBuf, &params)
 
 	sqlBuf.WriteString(`
-  GROUP BY recipient
-  ORDER BY recipient`)
+  GROUP BY bm.recipient
+  ORDER BY bm.recipient`)
 
 	if limit > 0 {
 		sqlBuf.WriteString(`

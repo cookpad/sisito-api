@@ -298,8 +298,8 @@ func TestBlacklistRecipients(t *testing.T) {
        AND bm.senderdomain = ?
        AND bm.reason IN (?,?)
        AND bm.softbounce = ?
-  GROUP BY recipient
-  ORDER BY recipient
+  GROUP BY bm.recipient
+  ORDER BY bm.recipient
      LIMIT ?
     OFFSET ?`, query)
 
@@ -342,8 +342,8 @@ func TestBlacklistRecipientsWithFilter(t *testing.T) {
        AND bm.reason IN (?,?)
        AND bm.softbounce = ?
        AND bm.recipient NOT LIKE ?
-  GROUP BY recipient
-  ORDER BY recipient
+  GROUP BY bm.recipient
+  ORDER BY bm.recipient
      LIMIT ?
     OFFSET ?`, query)
 
@@ -386,8 +386,8 @@ func TestBlacklistRecipientsWithSql(t *testing.T) {
        AND bm.reason IN (?,?)
        AND bm.softbounce = ?
        AND recipient NOT LIKE 'localhost.localdomain'
-  GROUP BY recipient
-  ORDER BY recipient
+  GROUP BY bm.recipient
+  ORDER BY bm.recipient
      LIMIT ?
     OFFSET ?`, query)
 
@@ -422,8 +422,8 @@ func TestBlacklistRecipientsWithoutOptions(t *testing.T) {
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE wm.id IS NULL
-  GROUP BY recipient
-  ORDER BY recipient`, query)
+  GROUP BY bm.recipient
+  ORDER BY bm.recipient`, query)
 
 			assert.Equal([]interface{}{}, args)
 
