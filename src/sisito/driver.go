@@ -44,7 +44,7 @@ func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
 }
 
 func (driver *Driver) Close() {
-	driver.Close()
+	driver.DbMap.Db.Close()
 }
 
 type BounceMail struct {

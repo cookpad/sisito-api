@@ -22,6 +22,7 @@ go-get:
 	go get github.com/gin-contrib/gzip
 	go get github.com/stretchr/testify
 	go get github.com/bouk/monkey
+	go get github.com/fvbock/endless
 
 $(PROGRAM): $(SRC)
 ifeq ($(GOOS),linux)

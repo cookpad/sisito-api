@@ -1,8 +1,10 @@
 package sisito
 
 import (
+	"github.com/fvbock/endless"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"os"
 	"strconv"
 )
 
@@ -269,5 +271,11 @@ func (server *Server) Blacklist(c *gin.Context) {
 }
 
 func (server *Server) Run() {
-	server.Engine.Run()
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	endless.ListenAndServe(":"+port, server.Engine)
 }
