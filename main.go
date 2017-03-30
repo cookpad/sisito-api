@@ -23,7 +23,7 @@ func main() {
 		file, err := os.OpenFile(config.Server.Log, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModePerm)
 
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Open log file failed: %s", err)
 		}
 
 		defer file.Close()
