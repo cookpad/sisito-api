@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -13,7 +14,7 @@ import (
 func TestServerPing(t *testing.T) {
 	assert := assert.New(t)
 
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/ping")
@@ -27,7 +28,7 @@ func TestServerRecentWithRecipient(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -78,7 +79,7 @@ func TestServerRecentWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -129,7 +130,7 @@ func TestServerRecentWithDigest(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -178,7 +179,7 @@ func TestServerRecentWithDigest(t *testing.T) {
 
 func TestServerRecentWithRecipientDigest(t *testing.T) {
 	assert := assert.New(t)
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/recent?recipient=foo@example.com&digest=767e74eab7081c41e0b83630511139d130249666&senderdomain=example.net")
@@ -190,7 +191,7 @@ func TestServerRecentWithRecipientDigest(t *testing.T) {
 
 func TestServerRecentWithoutRecipientDigest(t *testing.T) {
 	assert := assert.New(t)
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/recent?senderdomain=example.net")
@@ -204,7 +205,7 @@ func TestServerListedWithRecipient(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -235,7 +236,7 @@ func TestServerListedWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -266,7 +267,7 @@ func TestServerListedWithDigest(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -295,7 +296,7 @@ func TestServerListedWithDigest(t *testing.T) {
 
 func TestServerListedWithRecipientDigest(t *testing.T) {
 	assert := assert.New(t)
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/listed?recipient=foo@example.com&digest=767e74eab7081c41e0b83630511139d130249666&senderdomain=example.net")
@@ -307,7 +308,7 @@ func TestServerListedWithRecipientDigest(t *testing.T) {
 
 func TestServerListedWithoutRecipientDigest(t *testing.T) {
 	assert := assert.New(t)
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/listed?senderdomain=example.net")
@@ -321,7 +322,7 @@ func TestServerBlacklist(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -355,7 +356,7 @@ func TestServerBlacklistWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -389,7 +390,7 @@ func TestServerBlacklistWithoutQuery(t *testing.T) {
 	assert := assert.New(t)
 
 	driver := &Driver{}
-	server := NewServer(&Config{User: []UserConfig{}}, driver)
+	server := NewServer(&Config{User: []UserConfig{}}, driver, os.Stdout)
 
 	var guard *monkey.PatchGuard
 	guard = monkey.PatchInstanceMethod(
@@ -420,7 +421,7 @@ func TestServerBlacklistWithoutQuery(t *testing.T) {
 
 func TestServerBlacklistWithInvalidSoftbounce(t *testing.T) {
 	assert := assert.New(t)
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/blacklist?softbounce=x")
@@ -432,7 +433,7 @@ func TestServerBlacklistWithInvalidSoftbounce(t *testing.T) {
 
 func TestServerBlacklistWithInvalidLimit(t *testing.T) {
 	assert := assert.New(t)
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/blacklist?limit=x")
@@ -444,7 +445,7 @@ func TestServerBlacklistWithInvalidLimit(t *testing.T) {
 
 func TestServerBlacklistWithInvalidOffset(t *testing.T) {
 	assert := assert.New(t)
-	server := NewServer(&Config{User: []UserConfig{}}, nil)
+	server := NewServer(&Config{User: []UserConfig{}}, nil, os.Stdout)
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/blacklist?offset=x")

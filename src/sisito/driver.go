@@ -6,8 +6,8 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/gorp.v1"
+	"io"
 	"log"
-	"os"
 	"strings"
 	"time"
 )
@@ -17,7 +17,7 @@ type Driver struct {
 	DbMap  *gorp.DbMap
 }
 
-func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
+func NewDriver(config *Config, debug bool, out io.Writer) (driver *Driver, err error) {
 	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
 		config.Database.Username,
 		config.Database.Password,
@@ -35,7 +35,7 @@ func NewDriver(config *Config, debug bool) (driver *Driver, err error) {
 	dbmap := &gorp.DbMap{Db: db, Dialect: gorp.MySQLDialect{}}
 
 	if debug {
-		dbmap.TraceOn("[gorp]", log.New(os.Stdout, "", log.Ldate|log.Ltime))
+		dbmap.TraceOn("[gorp]", log.New(out, "", log.Ldate|log.Ltime))
 	}
 
 	driver = &Driver{Config: config, DbMap: dbmap}

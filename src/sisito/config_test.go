@@ -11,6 +11,9 @@ func TestLoadConfig(t *testing.T) {
 	assert := assert.New(t)
 
 	tml := `
+[server]
+log = "sisito-api.log"
+
 [database]
 host = "localhost"
 port = 3306
@@ -32,6 +35,7 @@ password = "baz"
 		config, _ := LoadConfig(flag)
 
 		assert.Equal(*config, Config{
+			Server: ServerConfig{Log: "sisito-api.log"},
 			Database: DatabaseConfig{
 				Host:     "localhost",
 				Port:     3306,
@@ -87,6 +91,7 @@ value = "example.net"
 		config, _ := LoadConfig(flag)
 
 		assert.Equal(*config, Config{
+			Server: ServerConfig{},
 			Database: DatabaseConfig{
 				Host:     "localhost",
 				Port:     3306,
@@ -156,6 +161,7 @@ value = "example.net"
 		config, _ := LoadConfig(flag)
 
 		assert.Equal(*config, Config{
+			Server: ServerConfig{},
 			Database: DatabaseConfig{
 				Host:     "localhost",
 				Port:     3306,

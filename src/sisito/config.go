@@ -5,9 +5,14 @@ import (
 )
 
 type Config struct {
+	Server   ServerConfig
 	Database DatabaseConfig
 	User     []UserConfig
 	Filter   []FilterConfig
+}
+
+type ServerConfig struct {
+	Log string
 }
 
 type DatabaseConfig struct {

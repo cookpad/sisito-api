@@ -1,3 +1,6 @@
+#[server]
+#log = "sisito-api.log"
+
 [database]
 host = "localhost"
 port = 3306

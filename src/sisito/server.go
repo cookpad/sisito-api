@@ -4,6 +4,7 @@ import (
 	"github.com/fvbock/endless"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	"io"
 	"os"
 	"strconv"
 )
@@ -14,9 +15,13 @@ type Server struct {
 	Driver *Driver
 }
 
-func NewServer(config *Config, driver *Driver) (server *Server) {
-	engine := gin.Default()
+func NewServer(config *Config, driver *Driver, out io.Writer) (server *Server) {
+	engine := gin.New()
+	engine.Use(gin.Recovery())
 	engine.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	logger := gin.LoggerWithWriter(out)
+	engine.Use(logger)
 
 	server = &Server{
 		Engine: engine,
