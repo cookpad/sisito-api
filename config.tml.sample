@@ -22,4 +22,5 @@ operator = "<>"
 value = "example.net"
 
 [[filter]]
+join = "OR"
 sql = "softbounce = 0"

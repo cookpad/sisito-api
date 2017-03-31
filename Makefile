@@ -6,6 +6,7 @@ GOARCH         := $(shell go env GOARCH)
 RUNTIME_GOPATH := $(GOPATH):$(shell pwd)
 TEST_SRC       := $(wildcard src/*/*_test.go) $(wildcard src/*/test_*.go)
 SRC            := $(filter-out $(TEST_SRC),$(wildcard src/*/*.go))
+TEST_GIN_MODE  := release
 
 UBUNTU_IMAGE          := docker-go-pkg-build-ubuntu
 UBUNTU_CONTAINER_NAME := docker-go-pkg-build-ubuntu-$(shell date +%s)
@@ -33,7 +34,7 @@ endif
 
 .PHONY: test
 test: $(TEST_SRC)
-	GOPATH=$(RUNTIME_GOPATH) go test -v $(TEST_SRC)
+	GOPATH=$(RUNTIME_GOPATH) GIN_MODE=$(TEST_GIN_MODE) go test -v $(TEST_SRC)
 
 .PHONY: clean
 clean: $(TEST_SRC)

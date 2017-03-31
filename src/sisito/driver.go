@@ -78,12 +78,14 @@ type BounceMail struct {
 func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
 	for _, filter := range driver.Config.Filter {
 		if filter.Sql != "" {
-			buf.WriteString(`
-       AND `)
+			buf.WriteString("\n       ")
+			buf.WriteString(filter.Join)
+			buf.WriteString(" ")
 			buf.WriteString(filter.Sql)
 		} else {
-			buf.WriteString(`
-       AND bm.`)
+			buf.WriteString("\n       ")
+			buf.WriteString(filter.Join)
+			buf.WriteString(" bm.")
 			buf.WriteString(filter.Key)
 			buf.WriteString(" ")
 			buf.WriteString(filter.Operator)

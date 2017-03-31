@@ -46,7 +46,7 @@ func TestDriverRecentlyListedWithFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain"},
+			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -84,7 +84,7 @@ func TestDriverRecentlyListedWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain"},
+			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -121,7 +121,7 @@ func TestDriverRecentlyListedWithSql(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Sql: "recipient NOT LIKE 'localhost.localdomain'"},
+			FilterConfig{Sql: "recipient NOT LIKE 'localhost.localdomain'", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -221,7 +221,7 @@ func TestDriverListedWithFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain"},
+			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -256,7 +256,7 @@ func TestDriverListedWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain"},
+			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -290,7 +290,7 @@ func TestDriverListedWithSql(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Sql: "recipient NOT LIKE 'localhost.localdomain'"},
+			FilterConfig{Sql: "recipient NOT LIKE 'localhost.localdomain'", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -393,7 +393,7 @@ func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain"},
+			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -437,7 +437,7 @@ func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain"},
+			FilterConfig{Key: "recipient", Operator: "NOT LIKE", Value: "localhost.localdomain", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 
@@ -480,7 +480,7 @@ func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
 		Filter: []FilterConfig{
-			FilterConfig{Sql: "recipient NOT LIKE 'localhost.localdomain'"},
+			FilterConfig{Sql: "recipient NOT LIKE 'localhost.localdomain'", Join: "AND"},
 		},
 	}, DbMap: &gorp.DbMap{}}
 

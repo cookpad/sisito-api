@@ -32,6 +32,7 @@ type FilterConfig struct {
 	Key      string
 	Operator string
 	Value    string
+	Join     string
 	Sql      string
 }
 
@@ -62,6 +63,10 @@ func LoadConfig(flags *Flags) (config *Config, err error) {
 
 		if filter.Sql == "" && filter.Operator == "" {
 			filter.Operator = "="
+		}
+
+		if filter.Join == "" {
+			filter.Join = "AND"
 		}
 	}
 

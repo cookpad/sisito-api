@@ -115,12 +115,14 @@ value = "example.net"
 					Key:      "recipient",
 					Operator: "=",
 					Value:    "foo@example.com",
+					Join:     "AND",
 					Sql:      "",
 				},
 				FilterConfig{
 					Key:      "senderdomain",
 					Operator: "<>",
 					Value:    "example.net",
+					Join:     "AND",
 					Sql:      "",
 				},
 			},
@@ -151,6 +153,7 @@ password = "baz"
 sql = "softbounce = 0"
 
 [[filter]]
+join = "OR"
 key = "senderdomain"
 operator = "<>"
 value = "example.net"
@@ -185,12 +188,14 @@ value = "example.net"
 					Key:      "",
 					Operator: "",
 					Value:    "",
+					Join:     "AND",
 					Sql:      "softbounce = 0",
 				},
 				FilterConfig{
 					Key:      "senderdomain",
 					Operator: "<>",
 					Value:    "example.net",
+					Join:     "OR",
 					Sql:      "",
 				},
 			},
