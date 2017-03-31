@@ -24,3 +24,7 @@ value = "example.net"
 [[filter]]
 join = "OR"
 sql = "softbounce = 0"
+
+[[filter]]
+key = "reason"
+values = ["filterd", "blocked"]

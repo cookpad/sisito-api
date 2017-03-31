@@ -89,9 +89,24 @@ func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
 			buf.WriteString(filter.Key)
 			buf.WriteString(" ")
 			buf.WriteString(filter.Operator)
-			buf.WriteString(" ?")
 
-			*params = append(*params, filter.Value)
+			if filter.Values == nil {
+				buf.WriteString(" ?")
+				*params = append(*params, filter.Value)
+			} else {
+				buf.WriteString(" (")
+
+				for i, value := range filter.Values {
+					if i > 0 {
+						buf.WriteString(",")
+					}
+
+					buf.WriteString("?")
+					*params = append(*params, value)
+				}
+
+				buf.WriteString(")")
+			}
 		}
 	}
 }

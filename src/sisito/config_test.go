@@ -157,6 +157,10 @@ join = "OR"
 key = "senderdomain"
 operator = "<>"
 value = "example.net"
+
+[[filter]]
+key = "reason"
+values = ["filtered", "blocked"]
   `
 
 	tempFile(tml, func(f *os.File) {
@@ -196,6 +200,14 @@ value = "example.net"
 					Operator: "<>",
 					Value:    "example.net",
 					Join:     "OR",
+					Sql:      "",
+				},
+				FilterConfig{
+					Key:      "reason",
+					Operator: "IN",
+					Value:    "",
+					Values:   []string{"filtered", "blocked"},
+					Join:     "AND",
 					Sql:      "",
 				},
 			},

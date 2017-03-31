@@ -80,6 +80,46 @@ func TestDriverRecentlyListedWithFilter(t *testing.T) {
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
 
+func TestDriverRecentlyListedWithValuesFilter(t *testing.T) {
+	assert := assert.New(t)
+	driver := &Driver{Config: &Config{
+		Filter: []FilterConfig{
+			FilterConfig{Key: "reason", Operator: "IN", Values: []string{"filtered", "blocked"}, Join: "AND"},
+			FilterConfig{Key: "senderdomain", Operator: "<>", Value: "example.com", Join: "OR"},
+		},
+	}, DbMap: &gorp.DbMap{}}
+
+	var guard *monkey.PatchGuard
+	guard = monkey.PatchInstanceMethod(
+		reflect.TypeOf(driver.DbMap), "Select",
+		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer guard.Unpatch()
+			guard.Restore()
+
+			assert.Equal(`
+    SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE bm.recipient = ?
+       AND bm.senderdomain = ?
+       AND bm.reason IN (?,?)
+       OR bm.senderdomain <> ?
+  ORDER BY bm.id DESC
+     LIMIT 1`, query)
+
+			assert.Equal([]interface{}{"foo@example.com", "example.net", "filtered", "blocked", "example.com"}, args)
+
+			rows := i.(*[]BounceMail)
+			*rows = append(*rows, BounceMail{Id: 1})
+
+			return nil, nil
+		})
+
+	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net", true)
+
+	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
+}
+
 func TestDriverRecentlyListedWithoutFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
