@@ -18,7 +18,10 @@ type Server struct {
 func NewServer(config *Config, driver *Driver, out io.Writer) (server *Server) {
 	engine := gin.New()
 	engine.Use(gin.Recovery())
-	engine.Use(gzip.Gzip(gzip.DefaultCompression))
+
+	if config.Server.Gzip {
+		engine.Use(gzip.Gzip(gzip.DefaultCompression))
+	}
 
 	logger := gin.LoggerWithWriter(out)
 	engine.Use(logger)

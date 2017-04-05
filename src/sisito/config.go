@@ -12,7 +12,8 @@ type Config struct {
 }
 
 type ServerConfig struct {
-	Log string
+	Log  string
+	Gzip bool
 }
 
 type DatabaseConfig struct {

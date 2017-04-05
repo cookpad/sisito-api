@@ -1,5 +1,6 @@
 #[server]
 #log = "sisito-api.log"
+#gzip = true
 
 [database]
 host = "localhost"
