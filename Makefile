@@ -43,6 +43,7 @@ clean: $(TEST_SRC)
 .PHONY: package
 package: clean test $(PROGRAM)
 	gzip -c $(PROGRAM) > pkg/$(PROGRAM)-$(VERSION)-$(GOOS)-$(GOARCH).gz
+	rm -f $(PROGRAM)
 
 .PHONY: package/linux
 package/linux:
