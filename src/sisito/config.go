@@ -9,11 +9,13 @@ type Config struct {
 	Database DatabaseConfig
 	User     []UserConfig
 	Filter   []FilterConfig
+	Authz    AuthzConfig
 }
 
 type ServerConfig struct {
-	Log  string
-	Gzip bool
+	Log    string
+	Gzip   bool
+	Prefix string
 }
 
 type DatabaseConfig struct {
@@ -36,6 +38,12 @@ type FilterConfig struct {
 	Values   []string
 	Join     string
 	Sql      string
+}
+
+type AuthzConfig struct {
+	Recent    bool
+	Listed    bool
+	Blacklist bool
 }
 
 func LoadConfig(flags *Flags) (config *Config, err error) {
