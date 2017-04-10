@@ -11,7 +11,6 @@ import (
 
 type Server struct {
 	Engine *gin.Engine
-	Router gin.IRouter
 	Driver *Driver
 }
 
@@ -28,9 +27,12 @@ func NewServer(config *Config, driver *Driver, out io.Writer) (server *Server) {
 
 	server = &Server{
 		Engine: engine,
-		Router: engine,
 		Driver: driver,
 	}
+
+	var router, router_with_auth gin.IRouter
+	router = engine.Group(config.Server.Prefix)
+	router_with_auth = router
 
 	if len(config.User) > 0 {
 		accounts := gin.Accounts{}
@@ -39,13 +41,28 @@ func NewServer(config *Config, driver *Driver, out io.Writer) (server *Server) {
 			accounts[u.Userid] = u.Password
 		}
 
-		server.Router = engine.Group("", gin.BasicAuth(accounts))
+		router_with_auth = engine.Group(config.Server.Prefix, gin.BasicAuth(accounts))
 	}
 
 	server.Engine.GET("/ping", server.Ping)
-	server.Router.GET("/recent", server.Recent)
-	server.Router.GET("/listed", server.Listed)
-	server.Router.GET("/blacklist", server.Blacklist)
+
+	if config.Authz.Recent {
+		router_with_auth.GET("/recent", server.Recent)
+	} else {
+		router.GET("/recent", server.Recent)
+	}
+
+	if config.Authz.Listed {
+		router_with_auth.GET("/listed", server.Listed)
+	} else {
+		router.GET("/listed", server.Listed)
+	}
+
+	if config.Authz.Blacklist {
+		router_with_auth.GET("/blacklist", server.Blacklist)
+	} else {
+		router.GET("/blacklist", server.Blacklist)
+	}
 
 	return
 }
@@ -143,7 +160,7 @@ func (server *Server) Recent(c *gin.Context) {
 				"whitelisted":    whitelisted,
 			})
 		} else {
-			c.JSON(204, gin.H{})
+			c.JSON(200, gin.H{})
 		}
 	}
 }

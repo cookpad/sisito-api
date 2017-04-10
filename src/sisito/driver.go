@@ -68,6 +68,7 @@ type BounceMail struct {
 	Deliverystatus string
 	Timezoneoffset string
 	Addresser      string
+	Addresseralias string
 	Recipient      string
 	Digest         string
 	CreatedAt      time.Time `db:"created_at"`

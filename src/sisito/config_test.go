@@ -14,6 +14,7 @@ func TestLoadConfig(t *testing.T) {
 [server]
 log = "sisito-api.log"
 gzip = true
+prefix = "/v1"
 
 [database]
 host = "localhost"
@@ -29,6 +30,11 @@ password = "bar"
 [[user]]
 userid = "zoo"
 password = "baz"
+
+[authz]
+recent = true
+listed = true
+blacklist = true
   `
 
 	tempFile(tml, func(f *os.File) {
@@ -37,8 +43,9 @@ password = "baz"
 
 		assert.Equal(*config, Config{
 			Server: ServerConfig{
-				Log:  "sisito-api.log",
-				Gzip: true,
+				Log:    "sisito-api.log",
+				Gzip:   true,
+				Prefix: "/v1",
 			},
 			Database: DatabaseConfig{
 				Host:     "localhost",
@@ -56,6 +63,11 @@ password = "baz"
 					Userid:   "zoo",
 					Password: "baz",
 				},
+			},
+			Authz: AuthzConfig{
+				Recent:    true,
+				Listed:    true,
+				Blacklist: true,
 			},
 		})
 	})
