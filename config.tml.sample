@@ -9,6 +9,7 @@ port = 3306
 database = "sisito_development"
 username = "root"
 password = ""
+#timezone = "Asia/Tokyo"
 
 [[user]]
 userid = "foo"
