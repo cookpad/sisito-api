@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 )
 
@@ -30,12 +29,10 @@ func TestServerRecentWithRecipient(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "RecentlyListed",
-		func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed []BounceMail, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "RecentlyListed", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed []BounceMail, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("recipient", name)
 			assert.Equal("foo@example.com", value)
@@ -45,7 +42,8 @@ func TestServerRecentWithRecipient(t *testing.T) {
 			listed = []BounceMail{BounceMail{Id: 1}}
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/recent?recipient=foo@example.com&senderdomain=example.net")
@@ -81,12 +79,10 @@ func TestServerRecentWithoutFilter(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "RecentlyListed",
-		func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed []BounceMail, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "RecentlyListed", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed []BounceMail, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("recipient", name)
 			assert.Equal("foo@example.com", value)
@@ -96,7 +92,8 @@ func TestServerRecentWithoutFilter(t *testing.T) {
 			listed = []BounceMail{BounceMail{Id: 1}}
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/recent?recipient=foo@example.com&senderdomain=example.net&filter=0")
@@ -132,12 +129,10 @@ func TestServerRecentWithDigest(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "RecentlyListed",
-		func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed []BounceMail, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "RecentlyListed", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed []BounceMail, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("digest", name)
 			assert.Equal("767e74eab7081c41e0b83630511139d130249666", value)
@@ -147,7 +142,8 @@ func TestServerRecentWithDigest(t *testing.T) {
 			listed = []BounceMail{BounceMail{Id: 1}}
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/recent?digest=767e74eab7081c41e0b83630511139d130249666")
@@ -207,12 +203,10 @@ func TestServerListedWithRecipient(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "Listed",
-		func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed bool, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "Listed", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed bool, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("recipient", name)
 			assert.Equal("foo@example.com", value)
@@ -222,7 +216,8 @@ func TestServerListedWithRecipient(t *testing.T) {
 			listed = true
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/listed?recipient=foo@example.com&senderdomain=example.net")
@@ -238,12 +233,10 @@ func TestServerListedWithoutFilter(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "Listed",
-		func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed bool, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "Listed", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed bool, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("recipient", name)
 			assert.Equal("foo@example.com", value)
@@ -253,7 +246,8 @@ func TestServerListedWithoutFilter(t *testing.T) {
 			listed = true
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/listed?recipient=foo@example.com&senderdomain=example.net&filter=0")
@@ -269,12 +263,10 @@ func TestServerListedWithDigest(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "Listed",
-		func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed bool, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "Listed", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, name string, value string, senderdomain string, useFilter bool) (listed bool, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("digest", name)
 			assert.Equal("767e74eab7081c41e0b83630511139d130249666", value)
@@ -284,7 +276,8 @@ func TestServerListedWithDigest(t *testing.T) {
 			listed = false
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/listed?digest=767e74eab7081c41e0b83630511139d130249666&senderdomain=example.net")
@@ -324,12 +317,10 @@ func TestServerBlacklist(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "BlacklistRecipients",
-		func(_ *Driver, senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "BlacklistRecipients", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("example.net", senderdomain)
 			assert.Equal([]string{"userunknown", "filtered"}, reasons)
@@ -341,7 +332,8 @@ func TestServerBlacklist(t *testing.T) {
 			recipients = []string{"foo@example.com"}
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/blacklist" +
@@ -358,12 +350,10 @@ func TestServerBlacklistWithoutFilter(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "BlacklistRecipients",
-		func(_ *Driver, senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "BlacklistRecipients", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("example.net", senderdomain)
 			assert.Equal([]string{"userunknown", "filtered"}, reasons)
@@ -375,7 +365,8 @@ func TestServerBlacklistWithoutFilter(t *testing.T) {
 			recipients = []string{"foo@example.com"}
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/blacklist" +
@@ -392,12 +383,10 @@ func TestServerBlacklistWithoutQuery(t *testing.T) {
 	driver := &Driver{}
 	server := NewServer(&Config{User: []UserConfig{}}, driver, ioutil.Discard)
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver), "BlacklistRecipients",
-		func(_ *Driver, senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver, "BlacklistRecipients", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *Driver, senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal("", senderdomain)
 			assert.Equal([]string{}, reasons)
@@ -409,7 +398,8 @@ func TestServerBlacklistWithoutQuery(t *testing.T) {
 			recipients = []string{"foo@example.com"}
 
 			return
-		})
+		}
+	})
 
 	ts := httptest.NewServer(server.Engine)
 	res, _ := http.Get(ts.URL + "/blacklist")

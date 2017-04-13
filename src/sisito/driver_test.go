@@ -5,7 +5,6 @@ import (
 	"github.com/bouk/monkey"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/gorp.v1"
-	"reflect"
 	"testing"
 )
 
@@ -13,12 +12,10 @@ func TestDriverRecentlyListed(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -35,7 +32,8 @@ func TestDriverRecentlyListed(t *testing.T) {
 			*rows = append(*rows, BounceMail{Id: 1})
 
 			return nil, nil
-		})
+		}
+	})
 
 	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net", true)
 
@@ -50,12 +48,10 @@ func TestDriverRecentlyListedWithFilter(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -73,7 +69,8 @@ func TestDriverRecentlyListedWithFilter(t *testing.T) {
 			*rows = append(*rows, BounceMail{Id: 1})
 
 			return nil, nil
-		})
+		}
+	})
 
 	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net", true)
 
@@ -89,12 +86,10 @@ func TestDriverRecentlyListedWithValuesFilter(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -113,7 +108,8 @@ func TestDriverRecentlyListedWithValuesFilter(t *testing.T) {
 			*rows = append(*rows, BounceMail{Id: 1})
 
 			return nil, nil
-		})
+		}
+	})
 
 	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net", true)
 
@@ -128,12 +124,10 @@ func TestDriverRecentlyListedWithoutFilter(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -150,7 +144,8 @@ func TestDriverRecentlyListedWithoutFilter(t *testing.T) {
 			*rows = append(*rows, BounceMail{Id: 1})
 
 			return nil, nil
-		})
+		}
+	})
 
 	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net", false)
 
@@ -165,12 +160,10 @@ func TestDriverRecentlyListedWithSql(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -188,7 +181,8 @@ func TestDriverRecentlyListedWithSql(t *testing.T) {
 			*rows = append(*rows, BounceMail{Id: 1})
 
 			return nil, nil
-		})
+		}
+	})
 
 	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net", true)
 
@@ -199,12 +193,10 @@ func TestDriverRecentlyListedWithoutSenderdomain(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
@@ -220,7 +212,8 @@ func TestDriverRecentlyListedWithoutSenderdomain(t *testing.T) {
 			*rows = append(*rows, BounceMail{Id: 1})
 
 			return nil, nil
-		})
+		}
+	})
 
 	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "", true)
 
@@ -231,12 +224,10 @@ func TestDriverListed(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "SelectInt",
-		func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "SelectInt", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT 1
@@ -250,7 +241,8 @@ func TestDriverListed(t *testing.T) {
 			assert.Equal([]interface{}{"foo@example.com", "example.net"}, args)
 
 			return 1, nil
-		})
+		}
+	})
 
 	count, _ := driver.Listed("recipient", "foo@example.com", "example.net", true)
 
@@ -265,12 +257,10 @@ func TestDriverListedWithFilter(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "SelectInt",
-		func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "SelectInt", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT 1
@@ -285,7 +275,8 @@ func TestDriverListedWithFilter(t *testing.T) {
 			assert.Equal([]interface{}{"foo@example.com", "example.net", "localhost.localdomain"}, args)
 
 			return 1, nil
-		})
+		}
+	})
 
 	count, _ := driver.Listed("recipient", "foo@example.com", "example.net", true)
 
@@ -300,12 +291,10 @@ func TestDriverListedWithoutFilter(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "SelectInt",
-		func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "SelectInt", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT 1
@@ -319,7 +308,8 @@ func TestDriverListedWithoutFilter(t *testing.T) {
 			assert.Equal([]interface{}{"foo@example.com", "example.net"}, args)
 
 			return 1, nil
-		})
+		}
+	})
 
 	count, _ := driver.Listed("recipient", "foo@example.com", "example.net", false)
 
@@ -334,12 +324,10 @@ func TestDriverListedWithSql(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "SelectInt",
-		func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "SelectInt", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT 1
@@ -354,7 +342,8 @@ func TestDriverListedWithSql(t *testing.T) {
 			assert.Equal([]interface{}{"foo@example.com", "example.net"}, args)
 
 			return 1, nil
-		})
+		}
+	})
 
 	count, _ := driver.Listed("recipient", "foo@example.com", "example.net", true)
 
@@ -365,12 +354,10 @@ func TestDriverListedWithoutSenderdomain(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "SelectInt",
-		func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "SelectInt", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT 1
@@ -383,7 +370,8 @@ func TestDriverListedWithoutSenderdomain(t *testing.T) {
 			assert.Equal([]interface{}{"foo@example.com"}, args)
 
 			return 1, nil
-		})
+		}
+	})
 
 	count, _ := driver.Listed("recipient", "foo@example.com", "", true)
 
@@ -394,12 +382,10 @@ func TestDriverBlacklistRecipients(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.recipient
@@ -421,7 +407,8 @@ func TestDriverBlacklistRecipients(t *testing.T) {
 			*rows = append(*rows, "foo@example.com")
 
 			return nil, nil
-		})
+		}
+	})
 
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, true)
@@ -437,12 +424,10 @@ func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.recipient
@@ -465,7 +450,8 @@ func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
 			*rows = append(*rows, "foo@example.com")
 
 			return nil, nil
-		})
+		}
+	})
 
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, true)
@@ -481,12 +467,10 @@ func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.recipient
@@ -508,7 +492,8 @@ func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
 			*rows = append(*rows, "foo@example.com")
 
 			return nil, nil
-		})
+		}
+	})
 
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, false)
@@ -524,12 +509,10 @@ func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
 		},
 	}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.recipient
@@ -552,7 +535,8 @@ func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
 			*rows = append(*rows, "foo@example.com")
 
 			return nil, nil
-		})
+		}
+	})
 
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, true)
@@ -564,12 +548,10 @@ func TestDriverBlacklistRecipientsWithoutOptions(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
 
-	var guard *monkey.PatchGuard
-	guard = monkey.PatchInstanceMethod(
-		reflect.TypeOf(driver.DbMap), "Select",
-		func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
-			defer guard.Unpatch()
-			guard.Restore()
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
 
 			assert.Equal(`
     SELECT bm.recipient
@@ -585,7 +567,8 @@ func TestDriverBlacklistRecipientsWithoutOptions(t *testing.T) {
 			*rows = append(*rows, "foo@example.com")
 
 			return nil, nil
-		})
+		}
+	})
 
 	recipients, _ := driver.BlacklistRecipients("", nil, nil, 0, 0, true)
 
