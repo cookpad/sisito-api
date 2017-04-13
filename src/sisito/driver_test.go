@@ -5,6 +5,7 @@ import (
 	"github.com/bouk/monkey"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/gorp.v1"
+	"sort"
 	"testing"
 )
 
@@ -36,6 +37,38 @@ func TestDriverRecentlyListed(t *testing.T) {
 	})
 
 	rows, _ := driver.RecentlyListed("recipient", "foo@example.com", "example.net", true)
+
+	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
+}
+
+func TestDriverRecentlyListedWithQutote(t *testing.T) {
+	assert := assert.New(t)
+	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
+
+	patchInstanceMethod(driver.DbMap, "Select", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, i interface{}, query string, args ...interface{}) ([]interface{}, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
+
+			assert.Equal(`
+    SELECT bm.*, IF(wm.id IS NULL, 0, 1) AS whitelisted
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE bm.recipient = ?
+       AND bm.senderdomain = ?
+  ORDER BY bm.id DESC
+     LIMIT 1`, query)
+
+			assert.Equal([]interface{}{"foos-email@example.com", "example.net"}, args)
+
+			rows := i.(*[]BounceMail)
+			*rows = append(*rows, BounceMail{Id: 1})
+
+			return nil, nil
+		}
+	})
+
+	rows, _ := driver.RecentlyListed("recipient", "foo's-email@example.com", "example.net", true)
 
 	assert.Equal([]BounceMail{BounceMail{Id: 1}}, rows)
 }
@@ -249,6 +282,35 @@ func TestDriverListed(t *testing.T) {
 	assert.Equal(count, true)
 }
 
+func TestDriverListedWithQuote(t *testing.T) {
+	assert := assert.New(t)
+	driver := &Driver{Config: &Config{}, DbMap: &gorp.DbMap{}}
+
+	patchInstanceMethod(driver.DbMap, "SelectInt", func(guard **monkey.PatchGuard) interface{} {
+		return func(_ *gorp.DbMap, query string, args ...interface{}) (int64, error) {
+			defer (*guard).Unpatch()
+			(*guard).Restore()
+
+			assert.Equal(`
+    SELECT 1
+      FROM bounce_mails bm LEFT JOIN whitelist_mails wm
+        ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
+     WHERE bm.recipient = ?
+       AND bm.senderdomain = ?
+       AND wm.id IS NULL
+     LIMIT 1`, query)
+
+			assert.Equal([]interface{}{"foos-email@example.com", "example.net"}, args)
+
+			return 1, nil
+		}
+	})
+
+	count, _ := driver.Listed("recipient", "foo's-email@example.com", "example.net", true)
+
+	assert.Equal(count, true)
+}
+
 func TestDriverListedWithFilter(t *testing.T) {
 	assert := assert.New(t)
 	driver := &Driver{Config: &Config{
@@ -388,7 +450,7 @@ func TestDriverBlacklistRecipients(t *testing.T) {
 			(*guard).Restore()
 
 			assert.Equal(`
-    SELECT bm.recipient
+    SELECT bm.recipient, bm.alias
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE wm.id IS NULL
@@ -403,8 +465,8 @@ func TestDriverBlacklistRecipients(t *testing.T) {
 			assert.Equal([]interface{}{
 				"example.net", "userunknown", "filtered", false, uint64(100), uint64(100)}, args)
 
-			rows := i.(*[]string)
-			*rows = append(*rows, "foo@example.com")
+			rows := i.(*[]Recipient)
+			*rows = append(*rows, Recipient{Recipient: "foos-email@example.com", Alias: "foo's-email@example.com"})
 
 			return nil, nil
 		}
@@ -413,7 +475,11 @@ func TestDriverBlacklistRecipients(t *testing.T) {
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, true)
 
-	assert.Equal(recipients, []string{"foo@example.com"})
+	sort.Slice(recipients, func(i, j int) bool {
+		return recipients[i] < recipients[j]
+	})
+
+	assert.Equal(recipients, []string{"foo's-email@example.com", "foos-email@example.com"})
 }
 
 func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
@@ -430,7 +496,7 @@ func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
 			(*guard).Restore()
 
 			assert.Equal(`
-    SELECT bm.recipient
+    SELECT bm.recipient, bm.alias
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE wm.id IS NULL
@@ -446,8 +512,8 @@ func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
 			assert.Equal([]interface{}{
 				"example.net", "userunknown", "filtered", false, "localhost.localdomain", uint64(100), uint64(100)}, args)
 
-			rows := i.(*[]string)
-			*rows = append(*rows, "foo@example.com")
+			rows := i.(*[]Recipient)
+			*rows = append(*rows, Recipient{Recipient: "foos-email@example.com", Alias: "foo's-email@example.com"})
 
 			return nil, nil
 		}
@@ -456,7 +522,11 @@ func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, true)
 
-	assert.Equal(recipients, []string{"foo@example.com"})
+	sort.Slice(recipients, func(i, j int) bool {
+		return recipients[i] < recipients[j]
+	})
+
+	assert.Equal(recipients, []string{"foo's-email@example.com", "foos-email@example.com"})
 }
 
 func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
@@ -473,7 +543,7 @@ func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
 			(*guard).Restore()
 
 			assert.Equal(`
-    SELECT bm.recipient
+    SELECT bm.recipient, bm.alias
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE wm.id IS NULL
@@ -488,8 +558,8 @@ func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
 			assert.Equal([]interface{}{
 				"example.net", "userunknown", "filtered", false, uint64(100), uint64(100)}, args)
 
-			rows := i.(*[]string)
-			*rows = append(*rows, "foo@example.com")
+			rows := i.(*[]Recipient)
+			*rows = append(*rows, Recipient{Recipient: "foos-email@example.com", Alias: "foo's-email@example.com"})
 
 			return nil, nil
 		}
@@ -498,7 +568,11 @@ func TestDriverBlacklistRecipientsWithoutFilter(t *testing.T) {
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, false)
 
-	assert.Equal(recipients, []string{"foo@example.com"})
+	sort.Slice(recipients, func(i, j int) bool {
+		return recipients[i] < recipients[j]
+	})
+
+	assert.Equal(recipients, []string{"foo's-email@example.com", "foos-email@example.com"})
 }
 
 func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
@@ -515,7 +589,7 @@ func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
 			(*guard).Restore()
 
 			assert.Equal(`
-    SELECT bm.recipient
+    SELECT bm.recipient, bm.alias
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE wm.id IS NULL
@@ -531,8 +605,8 @@ func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
 			assert.Equal([]interface{}{
 				"example.net", "userunknown", "filtered", false, uint64(100), uint64(100)}, args)
 
-			rows := i.(*[]string)
-			*rows = append(*rows, "foo@example.com")
+			rows := i.(*[]Recipient)
+			*rows = append(*rows, Recipient{Recipient: "foos-email@example.com", Alias: "foo's-email@example.com"})
 
 			return nil, nil
 		}
@@ -541,7 +615,11 @@ func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
 	recipients, _ := driver.BlacklistRecipients(
 		"example.net", []string{"userunknown", "filtered"}, new(bool), 100, 100, true)
 
-	assert.Equal(recipients, []string{"foo@example.com"})
+	sort.Slice(recipients, func(i, j int) bool {
+		return recipients[i] < recipients[j]
+	})
+
+	assert.Equal(recipients, []string{"foo's-email@example.com", "foos-email@example.com"})
 }
 
 func TestDriverBlacklistRecipientsWithoutOptions(t *testing.T) {
@@ -554,7 +632,7 @@ func TestDriverBlacklistRecipientsWithoutOptions(t *testing.T) {
 			(*guard).Restore()
 
 			assert.Equal(`
-    SELECT bm.recipient
+    SELECT bm.recipient, bm.alias
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE wm.id IS NULL
@@ -563,8 +641,8 @@ func TestDriverBlacklistRecipientsWithoutOptions(t *testing.T) {
 
 			assert.Equal([]interface{}{}, args)
 
-			rows := i.(*[]string)
-			*rows = append(*rows, "foo@example.com")
+			rows := i.(*[]Recipient)
+			*rows = append(*rows, Recipient{Recipient: "foos-email@example.com", Alias: "foo's-email@example.com"})
 
 			return nil, nil
 		}
@@ -572,5 +650,37 @@ func TestDriverBlacklistRecipientsWithoutOptions(t *testing.T) {
 
 	recipients, _ := driver.BlacklistRecipients("", nil, nil, 0, 0, true)
 
-	assert.Equal(recipients, []string{"foo@example.com"})
+	sort.Slice(recipients, func(i, j int) bool {
+		return recipients[i] < recipients[j]
+	})
+
+	assert.Equal(recipients, []string{"foo's-email@example.com", "foos-email@example.com"})
+}
+
+func TestNormalizeRecipient(t *testing.T) {
+	assert := assert.New(t)
+
+	recipient := `"foo's-email"@example.com`
+	normalized := NormalizeRecipient(recipient)
+
+	assert.Equal("foos-email@example.com", normalized)
+}
+
+func TestMergeRecipientAliases(t *testing.T) {
+	assert := assert.New(t)
+
+	recipientAlieses := []Recipient{
+		Recipient{Recipient: "foos-email@example.com", Alias: "foo's-email@example.com"},
+		Recipient{Recipient: "bars-email@example.com", Alias: "bar's-email@example.com"},
+		Recipient{Recipient: "zoo@example.com", Alias: "zoo@example.com"},
+	}
+
+	merged := MergeRecipientAliases(recipientAlieses)
+
+	sort.Slice(merged, func(i, j int) bool {
+		return merged[i] < merged[j]
+	})
+
+	expected := []string{"bar's-email@example.com", "bars-email@example.com", "foo's-email@example.com", "foos-email@example.com", "zoo@example.com"}
+	assert.Equal(expected, merged)
 }

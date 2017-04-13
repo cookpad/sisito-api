@@ -76,6 +76,11 @@ type BounceMail struct {
 	Whitelisted    uint8
 }
 
+type Recipient struct {
+	Recipient string
+	Alias     string
+}
+
 func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
 	for _, filter := range driver.Config.Filter {
 		if filter.Sql != "" {
@@ -119,6 +124,10 @@ func (driver *Driver) RecentlyListed(name string, value string, senderdomain str
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.%s = ?`, name)
 
+	if name == "recipient" {
+		value = NormalizeRecipient(value)
+	}
+
 	sqlBuf := bytes.NewBufferString(sqlBase)
 	params := []interface{}{value}
 
@@ -151,6 +160,10 @@ func (driver *Driver) Listed(name string, value string, senderdomain string, use
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.%s = ?`, name)
+
+	if name == "recipient" {
+		value = NormalizeRecipient(value)
+	}
 
 	sqlBuf := bytes.NewBufferString(sqlBase)
 	params := []interface{}{value}
@@ -190,7 +203,7 @@ func (driver *Driver) Listed(name string, value string, senderdomain string, use
 
 func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string, softbounce *bool, limit uint64, offset uint64, useFilter bool) (recipients []string, err error) {
 	sqlBase := fmt.Sprintf(`
-    SELECT bm.recipient
+    SELECT bm.recipient, bm.alias
       FROM bounce_mails bm LEFT JOIN whitelist_mails wm
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE wm.id IS NULL`)
@@ -251,11 +264,38 @@ func (driver *Driver) BlacklistRecipients(senderdomain string, reasons []string,
 
 	sql := sqlBuf.String()
 
-	recipients = []string{}
-	_, err = driver.DbMap.Select(&recipients, sql, params...)
+	recipientAlieses := []Recipient{}
+	_, err = driver.DbMap.Select(&recipientAlieses, sql, params...)
 
 	if err != nil {
 		return
+	}
+
+	recipients = MergeRecipientAliases(recipientAlieses)
+
+	return
+}
+
+func NormalizeRecipient(recipient string) (normalized string) {
+	normalized = strings.Replace(recipient, `"`, "", -1)
+	normalized = strings.Replace(normalized, `'`, "", -1)
+	return
+}
+
+func MergeRecipientAliases(recipientAlieses []Recipient) (merged []string) {
+	mergedMap := make(map[string]bool, len(recipientAlieses))
+
+	for _, v := range recipientAlieses {
+		mergedMap[v.Recipient] = true
+		mergedMap[v.Alias] = true
+	}
+
+	merged = make([]string, len(mergedMap))
+	i := 0
+
+	for k, _ := range mergedMap {
+		merged[i] = k
+		i++
 	}
 
 	return
