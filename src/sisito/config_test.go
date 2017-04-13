@@ -22,6 +22,7 @@ port = 3306
 database = "sisito"
 username = "root"
 password = "pass"
+timezone = "Asia/Tokyo"
 
 [[user]]
 userid = "foo"
@@ -53,6 +54,7 @@ blacklist = true
 				Database: "sisito",
 				Username: "root",
 				Password: "pass",
+				Timezone: "Asia/Tokyo",
 			},
 			User: []UserConfig{
 				UserConfig{

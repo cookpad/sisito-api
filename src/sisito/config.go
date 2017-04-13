@@ -24,6 +24,7 @@ type DatabaseConfig struct {
 	Database string
 	Username string
 	Password string
+	Timezone string
 }
 
 type UserConfig struct {

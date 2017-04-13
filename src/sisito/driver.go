@@ -8,6 +8,7 @@ import (
 	"gopkg.in/gorp.v1"
 	"io"
 	"log"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -18,15 +19,24 @@ type Driver struct {
 }
 
 func NewDriver(config *Config, debug bool, out io.Writer) (driver *Driver, err error) {
-	url := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?parseTime=true",
+	dbUrl := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
 		config.Database.Username,
 		config.Database.Password,
 		config.Database.Host,
 		config.Database.Port,
 		config.Database.Database)
 
+	values := url.Values{}
+	values.Add("parseTime", "true")
+
+	if config.Database.Timezone != "" {
+		values.Add("loc", config.Database.Timezone)
+	}
+
+	dbUrl = dbUrl + "?" + values.Encode()
+
 	var db *sql.DB
-	db, err = sql.Open("mysql", url)
+	db, err = sql.Open("mysql", dbUrl)
 
 	if err != nil {
 		return
