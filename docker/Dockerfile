@@ -16,7 +16,7 @@ RUN wget -O - -q https://github.com/progrium/entrykit/releases/download/v${ENTRY
     chmod +x /bin/entrykit && \
     entrykit --symlink
 
-ARG SISITO_API_VERSION=0.2.5
+ARG SISITO_API_VERSION=0.2.6
 RUN wget -O - -q https://github.com/winebarrel/sisito-api/releases/download/v${SISITO_API_VERSION}/sisito-api-v${SISITO_API_VERSION}-linux-amd64.gz \
       | gunzip > /sbin/sisito-api && \
     chmod +x /sbin/sisito-api
