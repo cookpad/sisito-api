@@ -9,7 +9,7 @@ import (
 var version string
 
 const (
-	DefaultConfig = "config.tml"
+	DefaultConfig = "sisito-api.toml"
 )
 
 type Flags struct {

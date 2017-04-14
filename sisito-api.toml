@@ -1,0 +1,20 @@
+[server]
+prefix = "/v1"
+use_alias_instead_of_recipient = true
+
+[database]
+host = "localhost"
+port = 3306
+database = "sisito_development"
+username = "root"
+password = ""
+timezone = "Asia/Tokyo"
+
+[[user]]
+userid = "foo"
+password = "bar"
+
+[authz]
+recent = false
+listed = false
+blacklist = true

@@ -4,6 +4,17 @@
 
 [![Build Status](https://travis-ci.org/winebarrel/sisito-api.svg?branch=master)](https://travis-ci.org/winebarrel/sisito-api)
 
+## Usage
+
+```sh
+$ sisito-api --help
+Usage of ./sisito-api:
+  -config string
+      config file path (default "sisito-api.toml")
+  -version
+      show version
+```
+
 ## Getting Started
 
 ```sh

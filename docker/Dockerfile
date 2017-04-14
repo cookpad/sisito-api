@@ -25,10 +25,10 @@ COPY files/ /
 
 ENTRYPOINT [ \
   "render", \
-    "/etc/sisito-api.tml", \
+    "/etc/sisito-api.toml", \
   "--", \
   "switch", \
     "shell=/bin/bash", \
   "--", \
-  "/sbin/sisito-api", "-config", "/etc/sisito-api.tml" \
+  "/sbin/sisito-api", "-config", "/etc/sisito-api.toml" \
 ]
