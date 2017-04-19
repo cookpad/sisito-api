@@ -92,15 +92,18 @@ type Recipient struct {
 }
 
 func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
-	for _, filter := range driver.Config.Filter {
+	for i, filter := range driver.Config.Filter {
+		buf.WriteString("\n       ")
+		buf.WriteString(filter.Join)
+
+		if i == 0 {
+			buf.WriteString(" (\n      ")
+		}
+
 		if filter.Sql != "" {
-			buf.WriteString("\n       ")
-			buf.WriteString(filter.Join)
 			buf.WriteString(" ")
 			buf.WriteString(filter.Sql)
 		} else {
-			buf.WriteString("\n       ")
-			buf.WriteString(filter.Join)
 			buf.WriteString(" bm.")
 			buf.WriteString(filter.Key)
 			buf.WriteString(" ")
@@ -112,8 +115,8 @@ func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
 			} else {
 				buf.WriteString(" (")
 
-				for i, value := range filter.Values {
-					if i > 0 {
+				for j, value := range filter.Values {
+					if j > 0 {
 						buf.WriteString(",")
 					}
 
@@ -124,6 +127,10 @@ func (driver *Driver) appendFilter(buf *bytes.Buffer, params *[]interface{}) {
 				buf.WriteString(")")
 			}
 		}
+	}
+
+	if len(driver.Config.Filter) > 0 {
+		buf.WriteString(" )")
 	}
 }
 

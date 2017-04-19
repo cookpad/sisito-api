@@ -92,7 +92,8 @@ func TestDriverRecentlyListedWithFilter(t *testing.T) {
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.recipient = ?
        AND bm.senderdomain = ?
-       AND bm.recipient NOT LIKE ?
+       AND (
+       bm.recipient NOT LIKE ? )
   ORDER BY bm.id DESC
      LIMIT 1`, query)
 
@@ -130,8 +131,9 @@ func TestDriverRecentlyListedWithValuesFilter(t *testing.T) {
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.recipient = ?
        AND bm.senderdomain = ?
-       AND bm.reason IN (?,?)
-       OR bm.senderdomain <> ?
+       AND (
+       bm.reason IN (?,?)
+       OR bm.senderdomain <> ? )
   ORDER BY bm.id DESC
      LIMIT 1`, query)
 
@@ -204,7 +206,8 @@ func TestDriverRecentlyListedWithSql(t *testing.T) {
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.recipient = ?
        AND bm.senderdomain = ?
-       AND recipient NOT LIKE 'localhost.localdomain'
+       AND (
+       recipient NOT LIKE 'localhost.localdomain' )
   ORDER BY bm.id DESC
      LIMIT 1`, query)
 
@@ -330,7 +333,8 @@ func TestDriverListedWithFilter(t *testing.T) {
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.recipient = ?
        AND bm.senderdomain = ?
-       AND bm.recipient NOT LIKE ?
+       AND (
+       bm.recipient NOT LIKE ? )
        AND wm.id IS NULL
      LIMIT 1`, query)
 
@@ -397,7 +401,8 @@ func TestDriverListedWithSql(t *testing.T) {
         ON bm.recipient = wm.recipient AND bm.senderdomain = wm.senderdomain
      WHERE bm.recipient = ?
        AND bm.senderdomain = ?
-       AND recipient NOT LIKE 'localhost.localdomain'
+       AND (
+       recipient NOT LIKE 'localhost.localdomain' )
        AND wm.id IS NULL
      LIMIT 1`, query)
 
@@ -503,7 +508,8 @@ func TestDriverBlacklistRecipientsWithFilter(t *testing.T) {
        AND bm.senderdomain = ?
        AND bm.reason IN (?,?)
        AND bm.softbounce = ?
-       AND bm.recipient NOT LIKE ?
+       AND (
+       bm.recipient NOT LIKE ? )
   GROUP BY bm.recipient
   ORDER BY bm.recipient
      LIMIT ?
@@ -596,7 +602,8 @@ func TestDriverBlacklistRecipientsWithSql(t *testing.T) {
        AND bm.senderdomain = ?
        AND bm.reason IN (?,?)
        AND bm.softbounce = ?
-       AND recipient NOT LIKE 'localhost.localdomain'
+       AND (
+       recipient NOT LIKE 'localhost.localdomain' )
   GROUP BY bm.recipient
   ORDER BY bm.recipient
      LIMIT ?
