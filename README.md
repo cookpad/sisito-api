@@ -4,6 +4,10 @@
 
 [![Build Status](https://travis-ci.org/winebarrel/sisito-api.svg?branch=master)](https://travis-ci.org/winebarrel/sisito-api)
 
+## Maintenance notice
+
+This project is no longer maintained.
+
 ## Usage
 
 ```sh
